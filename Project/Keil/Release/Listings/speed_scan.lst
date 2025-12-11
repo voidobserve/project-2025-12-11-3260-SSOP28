@@ -1,0 +1,126 @@
+C51 COMPILER V9.60.7.0   SPEED_SCAN                                                        12/05/2025 17:29:00 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE SPEED_SCAN
+OBJECT MODULE PLACED IN .\Release\Objects\speed_scan.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE ..\..\User\speed_scan.c LARGE OPTIMIZE(9,SIZE) BROWSE ORDER INTVECTOR(0X
+                    -000C) INCDIR(..\..\Libraries\Include;..\..\User;..\..\User\lib;..\..\Hardware) INTERVAL(3) DEBUG OBJECTEXTEND PRINT(.\Re
+                    -lease\Listings\speed_scan.lst) OBJECT(.\Release\Objects\speed_scan.obj)
+
+line level    source
+
+   1          #include "speed_scan.h"
+   2          
+   3          #if SPEED_SCAN_ENABLE
+   4          
+   5          // 时速扫描的配置
+   6          void speed_scan_config(void)
+   7          {
+   8   1      #if 1 // 使用定时器扫描IO电平变化来计算脉冲
+   9   1      
+  10   1          P1_MD1 &= ~GPIO_P15_MODE_SEL(0x3); // 输入模式
+  11   1          P1_PU |= GPIO_P15_PULL_UP(0x1);    // 配置为上拉
+  12   1      
+  13   1      #endif // 使用定时器扫描IO电平变化来计算脉冲
+  14   1      }
+  15           
+  16          
+  17          volatile bit flag_is_speed_scan_over_time = 0; // 速度检测是否一直没有脉冲到来，导致超�
+             -�
+  18          volatile u32 speed_pulse_cnt = 0;              // 记录脉冲个数，在定时器中断累加
+  19          volatile u32 speed_scan_time_ms = 0;           // 记录扫描时间
+  20          static volatile u32 cur_speed_scan_time = 0;
+  21          static volatile u32 cur_speed_scan_pulse = 0;
+  22          
+  23          void update_speed_scan_data(void) // 更新检测时速的数据
+  24          {
+  25   1          cur_speed_scan_time += speed_scan_time_ms;
+  26   1          speed_scan_time_ms = 0;
+  27   1          cur_speed_scan_pulse += speed_pulse_cnt;
+  28   1          speed_pulse_cnt = 0;
+  29   1      }
+  30          
+  31          void speed_scan(void)
+  32          {
+  33   1          volatile u32 cur_speed = 0;
+  34   1          u32 tmp = 0;
+  35   1      
+  36   1          if (cur_speed_scan_time >= SPEED_SCAN_UPDATE_TIME || flag_is_speed_scan_over_time)
+  37   1          {
+  38   2              /*
+  39   2                  采集到的脉冲个数 / 一圈对应的脉冲个数 * 车轮一圈对应走过的距离（�
+             -��位：mm），
+  40   2                  计算得到 采集的脉冲个数对应走过的距离（单位：mm）
+  41   2              */
+  42   2              // u32 tmp = (cur_speed_scan_pulse * SPEED_SCAN_MM_PER_TURN / SPEED_SCAN_PULSE_PER_TURN);
+  43   2              tmp = ((cur_speed_scan_pulse * SPEED_SCAN_MM_PER_TURN) / SPEED_SCAN_PULSE_PER_TURN);
+  44   2              // printf("cur_speed_scan_pulse %lu\n", cur_speed_scan_pulse);
+  45   2      
+  46   2              if (flag_is_speed_scan_over_time) // 超时，采集到的脉冲个数对应一直是0km/h，认�
+             -�时速是0
+  47   2              {
+  48   3                  cur_speed = 0;
+  49   3              }
+  50   2              else // 未超时，计算采集到的脉冲个数对应走过的距离，再转换成以km/h的�
+C51 COMPILER V9.60.7.0   SPEED_SCAN                                                        12/05/2025 17:29:00 PAGE 2   
+
+             -�位
+  51   2              {
+  52   3                  /*
+  53   3                      采集的脉冲个数对应走过的距离（单位：mm）/ 采集所用的时间（单�
+             -�：ms） == 速度（单位：mm/ms）
+  54   3                      1mm/ms == 1m/s
+  55   3                      因为 1mm/ms * 1000 == 1m/ms
+  56   3                           1m/ms  / 1000 == 1m/s
+  57   3                           先乘以1000再除以1000，那么这个操作就可以去掉，直接化简为 1mm/
+             -ms == 1m/s
+  58   3      
+  59   3                      1m/s == 3.6km/h，那么根据得到的 以 m/s 为单位的速度，先乘以36再除以1
+             -0，得到以km/h为单位的速度值
+  60   3      
+  61   3                      cur_speed == 采集的脉冲个数对应走过的距离（单位：mm）/ 采集所用的�
+             -��间（单位：ms）* 3.6
+  62   3                      换成单片机可以计算的格式：
+  63   3                      cur_speed == 采集的脉冲个数对应走过的距离（单位：mm） * 36 / 10 / 采�
+             -�所用的时间（单位：ms）
+  64   3                  */
+  65   3                  cur_speed = tmp * 36 / 10 / cur_speed_scan_time;
+  66   3              }
+  67   2      
+  68   2              // 防止时速为0时（有可能是推车，记录不到速度），记录不到里程
+  69   2              distance += tmp;
+  70   2      
+  71   2              // printf("cur distace 2 %lu\n", distance);
+  72   2              // printf("cur distace %lu\n", distance);
+  73   2              // printf("cur speed %lu km/h\n", cur_speed);
+  74   2      
+  75   2              cur_speed_scan_pulse = 0;
+  76   2              cur_speed_scan_time = 0;
+  77   2              flag_is_speed_scan_over_time = 0;
+  78   2      
+  79   2              fun_info.speed = cur_speed;
+  80   2              // 限制要发送的时速:
+  81   2              // if (fun_info.speed > 999)
+  82   2              // {
+  83   2              //     fun_info.speed = 999;
+  84   2              // }
+  85   2      
+  86   2              flag_get_speed = 1; // 表示速度有数据更新
+  87   2          } // if (cur_speed_scan_time >= 500 || flag_is_speed_scan_over_time)
+  88   1      }
+  89          
+  90          #endif
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    263    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =     16       8
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

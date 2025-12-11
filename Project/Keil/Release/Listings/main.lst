@@ -1,0 +1,205 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              12/05/2025 17:28:59 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Release\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE ..\..\User\main.c LARGE OPTIMIZE(9,SIZE) BROWSE ORDER INTVECTOR(0X000C) 
+                    -INCDIR(..\..\Libraries\Include;..\..\User;..\..\User\lib;..\..\Hardware) INTERVAL(3) DEBUG OBJECTEXTEND PRINT(.\Release\
+                    -Listings\main.lst) OBJECT(.\Release\Objects\main.obj)
+
+line level    source
+
+   1          /**
+   2           ******************************************************************************
+   3           * @file    main.c
+   4           * @author  HUGE-IC Application Team
+   5           * @version V1.0.0
+   6           * @date    05-11-2022
+   7           * @brief   Main program body
+   8           ******************************************************************************
+   9           * @attention
+  10           *
+  11           * <h2><center>&copy; COPYRIGHT 2021 HUGE-IC</center></h2>
+  12           *
+  13           * 版权说明后续补上
+  14           *
+  15           ******************************************************************************
+  16           */
+  17          
+  18          /* Includes ------------------------------------------------------------------*/
+  19          #include "include.h"
+  20          #include "my_config.h"
+  21          
+  22          // DEBUG
+  23          // volatile bit flag_is_debug_update = 0; // 测试时使用
+  24          // volatile bit flag_debug_is_send_time = 0; // 测试时使用
+  25          // volatile bit flag_debug_is_send_time_2 = 0; // 测试时使用
+  26          
+  27          void user_init(void)
+  28          {
+  29   1          // 控制上电指示灯的引脚：
+  30   1          P2_MD0 &= ~(GPIO_P23_MODE_SEL(0x03)); // 清空寄存器配置
+  31   1          P2_MD0 |= GPIO_P23_MODE_SEL(0x01);    // 输出模式
+  32   1          FOUT_S23 |= GPIO_FOUT_AF_FUNC;
+  33   1      
+  34   1          // tmr0_config();  // 串口检测数据超时需要使用到的定时器
+  35   1          uart0_config(); // 发送和接收指令使用到的串口
+  36   1      
+  37   1      #if PIN_LEVEL_SCAN_ENABLE
+  38   1          pin_level_scan_config(); // 刹车、转向灯、挡位的检测引脚配置
+  39   1      #endif
+  40   1      
+  41   1          tmr1_config(); // 检测一段时间内的脉冲个数所需的定时器(用于计时)
+  42   1      
+  43   1      #if SPEED_SCAN_ENABLE
+  44   1          speed_scan_config(); // 时速扫描的配置
+  45   1      #endif                   // SPEED_SCAN_ENABLE
+  46   1      
+  47   1      #if ENGINE_SPEED_SCAN_ENABLE
+  48   1          engine_speed_scan_config(); // 发动机转速扫描的配置
+  49   1      #endif                          // #if ENGINE_SPEED_SCAN_ENABLE
+  50   1      
+  51   1      #if (BATTERY_SCAN_ENABLE || AD_KEY_ENABLE || FUEL_CAPACITY_SCAN_ENABLE || TEMP_OF_WATER_SCAN_ENABLE)
+  52   1          adc_config();
+  53   1      #endif
+C51 COMPILER V9.60.7.0   MAIN                                                              12/05/2025 17:28:59 PAGE 2   
+
+  54   1      
+  55   1      #if TOUCH_KEY_ENABLE
+                  tk_param_init(); // 触摸按键模块初始化
+              #endif
+  58   1      
+  59   1      #if IC_1302_ENABLE
+  60   1          aip1302_config(); // 初始化时钟ic，函数内部会读取时间信息，并存放到全局变量�
+             -��
+  61   1      #endif
+  62   1      
+  63   1          tmr2_config(); // 扫描脉冲(电平变化)的定时器
+  64   1      
+  65   1          // iic_config();
+  66   1      
+  67   1          // eeprom_24cxx_clear(); // 全片擦除
+  68   1      
+  69   1          // printf("begin read eeprom\n");
+  70   1          fun_info_init(); // 初始化用于存放信息的变量
+  71   1      
+  72   1          // delay_ms(10); // 等待系统稳定
+  73   1          delay_ms(1); // 等待系统稳定
+  74   1          // delay_ms(2000); // 等待系统稳定
+  75   1      }
+  76          
+  77          void main(void)
+  78          {
+  79   1          // 看门狗默认打开, 复位时间2s
+  80   1          system_init();
+  81   1      
+  82   1          // WDT_KEY = WDT_KEY_VAL(0xDD); //  关闭看门狗
+  83   1      
+  84   1          // 关闭HCK和HDA的调试功能
+  85   1          WDT_KEY = 0x55;  // 解除写保护
+  86   1          IO_MAP &= ~0x01; // 清除这个寄存器的值，实现关闭HCK和HDA引脚的调试功能（解除�
+             -��射）
+  87   1          WDT_KEY = 0xBB;
+  88   1      
+  89   1          /* 用户代码初始化接口 */
+  90   1          user_init();
+  91   1      
+  92   1          // printf("sys reset\n");
+  93   1      
+  94   1          // 上电后，需要点亮一下所有的指示灯，再关闭:
+  95   1          P23 = 1;
+  96   1          delay_ms(1000);
+  97   1          P23 = 0;
+  98   1        
+  99   1          /* 系统主循环 */
+ 100   1          while (1)
+ 101   1          {
+ 102   2              // printf("main circle\n");
+ 103   2      
+ 104   2      #if 1
+ 105   2              WDT_KEY = WDT_KEY_VAL(0xAA); // 喂狗并清除 wdt_pending
+ 106   2      
+ 107   2      #if TOUCH_KEY_ENABLE
+                      /* 按键扫描函数 */
+                      __tk_scan();                 // 使用了库里面的接口（闭源库）
+                      WDT_KEY = WDT_KEY_VAL(0xAA); // 喂狗并清除 wdt_pending
+              #endif
+ 112   2      
+ 113   2      #if AD_KEY_ENABLE
+C51 COMPILER V9.60.7.0   MAIN                                                              12/05/2025 17:28:59 PAGE 3   
+
+                      key_driver_scan(&ad_key_para);
+                      ad_key_handle(); // ad按键处理函数
+              #endif                   //  #if AD_KEY_ENABLE
+ 117   2      
+ 118   2      #if TOUCH_KEY_ENABLE
+                      key_driver_scan(&touch_key_para);
+                      touch_key_handle(); // 触摸按键处理函数
+              #endif
+ 122   2      #if PIN_LEVEL_SCAN_ENABLE
+ 123   2              pin_level_scan();
+ 124   2      #endif
+ 125   2      #if SPEED_SCAN_ENABLE
+ 126   2      
+ 127   2              speed_scan(); // 检测时速
+ 128   2      #endif                // #if SPEED_SCAN_ENABLE
+ 129   2      
+ 130   2      #if ENGINE_SPEED_SCAN_ENABLE
+ 131   2              engine_speed_scan(); // 检测发动机转速
+ 132   2      #endif                       // #if ENGINE_SPEED_SCAN_ENABLE
+ 133   2              mileage_scan();      // 检测大计里程和小计里程
+ 134   2      
+ 135   2      #if FUEL_CAPACITY_SCAN_ENABLE
+ 136   2              fuel_capacity_scan(); // 油量检测
+ 137   2      #endif                        // FUEL_CAPACITY_SCAN_ENABLE
+ 138   2      #if BATTERY_SCAN_ENABLE
+ 139   2              battery_scan(); // 电池电量检测
+ 140   2      #endif                  // BATTERY_SCAN_ENABLE
+ 141   2      
+ 142   2      #if 1
+ 143   2              uart0_scan_handle();  // 检查串口接收缓冲区的数据是否符合协议,如果有正确的
+             -指令，会存到另一个缓冲区中（接下来让instruction_scan()函数来处理）
+ 144   2              instruction_scan();   // 扫描是否有合法的指令
+ 145   2              instruction_handle(); // 扫描是否有对应的获取/状态更新操作(最占用时间,因为�
+             -��等待串口的数据发送完成)
+ 146   2      #endif
+ 147   2      
+ 148   2              // DEBUG:
+ 149   2              // if (flag_debug_is_send_time)
+ 150   2              // {
+ 151   2              //     eeprom_printf_all();
+ 152   2              //     flag_debug_is_send_time = 0;
+ 153   2              // }
+ 154   2      
+ 155   2      #endif //
+ 156   2      
+ 157   2              // fun_info.save_info.total_mileage = (u32)417650;
+ 158   2              // send_data_packet(SEND_TOTAL_MILEAGE_TENTH_OF_KM);
+ 159   2              // send_data_packet(SEND_TOTAL_MILEAGE_TENTH_OF_MILE);
+ 160   2      
+ 161   2      
+ 162   2              // WDT_KEY = WDT_KEY_VAL(0xAA); // 喂狗并清除 wdt_pending
+ 163   2          }
+ 164   1      }
+ 165          
+ 166          /**
+ 167           * @}
+ 168           */
+ 169          
+ 170          /*************************** (C) COPYRIGHT 2022 HUGE-IC ***** END OF FILE *****/
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+C51 COMPILER V9.60.7.0   MAIN                                                              12/05/2025 17:28:59 PAGE 4   
+
+   CODE SIZE        =    111    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

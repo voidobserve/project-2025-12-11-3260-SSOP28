@@ -1,0 +1,230 @@
+C51 COMPILER V9.60.7.0   TMR2                                                              12/05/2025 17:28:58 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE TMR2
+OBJECT MODULE PLACED IN .\Release\Objects\tmr2.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE ..\..\Hardware\tmr2.c LARGE OPTIMIZE(9,SIZE) BROWSE ORDER INTVECTOR(0X00
+                    -0C) INCDIR(..\..\Libraries\Include;..\..\User;..\..\User\lib;..\..\Hardware) INTERVAL(3) DEBUG OBJECTEXTEND PRINT(.\Rele
+                    -ase\Listings\tmr2.lst) OBJECT(.\Release\Objects\tmr2.obj)
+
+line level    source
+
+   1          // 定时器TMR2的驱动源文件
+   2          #include "tmr2.h"
+   3          
+   4          // 定时器定时周期 (单位:Hz)
+   5          // 周期值 = 系统时钟 / 定时器分频 / 频率 - 1
+   6          #define TMR2_PERIOD (SYSCLK / 1 / 20000 - 1) // 20khz，50us
+   7          // #define TMR2_PERIOD (SYSCLK / 1 / 10000 - 1) // 10khz，100us
+   8          
+   9          // static volatile u8 tmr2_cnt = 0; // 定时器TMR2的计数值（每次在中断服务函数中会加一
+             -）
+  10          
+  11          /**
+  12           * @brief 配置定时器TMR2，配置完成后，定时器默认关闭
+  13           */
+  14          void tmr2_config(void)
+  15          {
+  16   1          __SetIRQnIP(TMR2_IRQn, TMR2_IQn_CFG); // 设置中断优先级
+  17   1          __DisableIRQ(TMR2_IRQn);              // 禁用中断
+  18   1          IE_EA = 1;                            // 打开总中断
+  19   1      
+  20   1          // 清除TMR2的计数值
+  21   1          TMR_ALLCON = TMR2_CNT_CLR(0x1); // 清除计数值
+  22   1      
+  23   1          TMR2_CONL &= ~TMR_PRESCALE_SEL(0x07); // 清除TMR2的预分频配置寄存器
+  24   1          TMR2_CONL |= TMR_PRESCALE_SEL(0x0);   // 定时器预分频
+  25   1          TMR2_CONL &= ~TMR_MODE_SEL(0x03);     // 清除TMR2的模式配置寄存器
+  26   1          TMR2_CONL |= TMR_MODE_SEL(0x01);      // 配置TMR2的模式为计数器模式，最后对系统时钟
+             -的脉冲进行计数
+  27   1      
+  28   1          // 配置TMR2的计数周期
+  29   1          TMR2_PRH = TMR_PERIOD_VAL_H((TMR2_PERIOD >> 8) & 0xFF); // 周期值
+  30   1          TMR2_PRL = TMR_PERIOD_VAL_L((TMR2_PERIOD >> 0) & 0xFF);
+  31   1      
+  32   1          // TMR2_CONL &= ~(TMR_SOURCE_SEL(0x07)); // 清除TMR2的时钟源配置寄存器
+  33   1          // TMR2_CONL |= TMR_SOURCE_SEL(0x05);    // 配置TMR2的时钟源，不用任何时钟
+  34   1          TMR2_CONH &= ~TMR_PRD_PND(0x01);      // 清除TMR2的计数标志位，表示未完成计数
+  35   1          TMR2_CONH |= TMR_PRD_IRQ_EN(1);       // 使能TMR2的计数中断
+  36   1      
+  37   1          TMR2_CONL &= ~(TMR_SOURCE_SEL(0x07)); // 清除定时器的时钟源配置寄存器
+  38   1          TMR2_CONL |= TMR_SOURCE_SEL(0x06);    // 配置定时器的时钟源，使用系统时钟
+  39   1      
+  40   1          __EnableIRQ(TMR2_IRQn); // 使能中断 
+  41   1      }
+  42          
+  43          // /**
+  44          //  * @brief 开启定时器TMR2，开始计时
+  45          //  */
+  46          // void tmr2_enable(void)
+  47          // {
+  48          //     // 重新给TMR2配置时钟
+  49          //     TMR2_CONL &= ~(TMR_SOURCE_SEL(0x07)); // 清除定时器的时钟源配置寄存器
+  50          //     TMR2_CONL |= TMR_SOURCE_SEL(0x06);    // 配置定时器的时钟源，使用系统时钟
+  51          
+C51 COMPILER V9.60.7.0   TMR2                                                              12/05/2025 17:28:58 PAGE 2   
+
+  52          //     __EnableIRQ(TMR2_IRQn); // 使能中断
+  53          //     IE_EA = 1;              // 打开总中断
+  54          // }
+  55          
+  56          #if 0  // void tmr2_disable(void)
+              /**
+               * @brief 关闭定时器，清空计数值
+               */
+              void tmr2_disable(void)
+              {
+                  // 不给定时器提供时钟，让它停止计数
+                  TMR2_CONL &= ~(TMR_SOURCE_SEL(0x07)); // 清除定时器的时钟源配置寄存器
+                  TMR2_CONL |= TMR_SOURCE_SEL(0x05);    // 配置定时器的时钟源，不用任何时钟
+              
+                  TMR_ALLCON = TMR2_CNT_CLR(0x1); // 清除计数值
+              
+                  __DisableIRQ(TMR2_IRQn); // 关闭中断（不使能中断）
+              }
+              #endif // void tmr2_disable(void)
+  71          
+  72          extern void update_engine_speed_scan_data(void); // 更新检测发动机转速的数据
+  73          #if SPEED_SCAN_ENABLE
+  74          extern void update_speed_scan_data(void);
+  75          #endif // #if SPEED_SCAN_ENABLE
+  76          // TMR2中断服务函数
+  77          void TIMR2_IRQHandler(void) interrupt TMR2_IRQn
+  78          {
+  79   1      // 上升沿检测
+  80   1      #if ENGINE_SPEED_SCAN_ENABLE
+  81   1      
+  82   1          static volatile bit last_engine_speed_scan_level = 0; // 记录上一次检测到的引脚电平（发
+             -送机转速检测脚）
+  83   1      
+  84   1      #endif // #if ENGINE_SPEED_SCAN_ENABLE
+  85   1      
+  86   1      #if SPEED_SCAN_ENABLE
+  87   1      
+  88   1          static volatile bit last_speed_scan_level = 0; // 记录上一次检测到的引脚电平（时速检�
+             -��脚）
+  89   1      
+  90   1      #endif // #if SPEED_SCAN_ENABLE
+  91   1      
+  92   1          // 进入中断设置IP，不可删除
+  93   1          __IRQnIPnPush(TMR2_IRQn);
+  94   1          // P20 = 1; // 测试中断持续时间(约3us)
+  95   1      
+  96   1          // ---------------- 用户函数处理 -------------------
+  97   1          // 周期中断
+  98   1          if (TMR2_CONH & TMR_PRD_PND(0x1))
+  99   1          {
+ 100   2              TMR2_CONH |= TMR_PRD_PND(0x1); // 清除pending
+ 101   2      
+ 102   2      #if ENGINE_SPEED_SCAN_ENABLE
+ 103   2      
+ 104   2              { // 记录发动机转速扫描的时间
+ 105   3                  static u8 cnt = 0;
+ 106   3                  cnt++;
+ 107   3                  if (cnt >= 20) // 每1ms进入一次
+ 108   3                  {
+ 109   4                      cnt = 0;
+ 110   4                      engine_speed_scan_ms++;
+ 111   4      
+C51 COMPILER V9.60.7.0   TMR2                                                              12/05/2025 17:28:58 PAGE 3   
+
+ 112   4                      if (engine_speed_scan_ms >= ENGINE_SPEED_SCAN_OVER_TIME &&
+ 113   4                          flag_is_engine_speed_scan_over_time == 0)
+ 114   4                      {
+ 115   5                          engine_speed_scan_ms = 0;
+ 116   5                          flag_is_engine_speed_scan_over_time = 1; // 说明超时，脉冲计数一直没有加
+             -一
+ 117   5                      }
+ 118   4                  }
+ 119   3              }
+ 120   2      
+ 121   2              if (ENGINE_SPEED_SCAN_PIN) // 检测发动机转速的引脚
+ 122   2              {
+ 123   3                  if (0 == last_engine_speed_scan_level)
+ 124   3                  {
+ 125   4                      // 如果之前检测到低电平，现在检测到高电平，说明有上升沿，对脉
+             -冲计数加一
+ 126   4                      // if (detect_engine_pulse_cnt[0] < 4294967295) // 防止计数溢出
+ 127   4                      // {
+ 128   4                      //     detect_engine_pulse_cnt[0]++;
+ 129   4                      // }
+ 130   4                      engine_speed_scan_cnt++;
+ 131   4                      update_engine_speed_scan_data();
+ 132   4                  }
+ 133   3      
+ 134   3                  last_engine_speed_scan_level = 1;
+ 135   3              }
+ 136   2              else
+ 137   2              {
+ 138   3                  // 如果现在检测到低电平
+ 139   3                  last_engine_speed_scan_level = 0;
+ 140   3              }
+ 141   2      
+ 142   2      #endif // #if ENGINE_SPEED_SCAN_ENABLE
+ 143   2      
+ 144   2      #if SPEED_SCAN_ENABLE
+ 145   2              { // 记录时速扫描的时间
+ 146   3                  static u16 cnt = 0;
+ 147   3                  cnt++;
+ 148   3                  if (cnt >= 20) // 每1ms进入一次
+ 149   3                  {
+ 150   4                      cnt = 0;
+ 151   4                      speed_scan_time_ms++; // 每1ms加一
+ 152   4      
+ 153   4                      // 600ms，为了滤掉1Hz的脉冲，认为 1Hz==0km/h
+ 154   4                      if (speed_scan_time_ms >= SPEED_SCAN_OVER_TIME &&
+ 155   4                          flag_is_speed_scan_over_time == 0)
+ 156   4                      {
+ 157   5                          speed_scan_time_ms = 0;
+ 158   5                          flag_is_speed_scan_over_time = 1; // 说明超时，脉冲计数一直没有加一
+ 159   5                      }
+ 160   4                  }
+ 161   3              } // 记录时速扫描的时间
+ 162   2      
+ 163   2              if (SPEED_SCAN_PIN) // 检测时速的引脚
+ 164   2              {
+ 165   3                  if (0 == last_speed_scan_level)
+ 166   3                  {
+ 167   4      #if 0  // 定时扫描脉冲个数来计算时速的方式
+                     // 如果之前检测到低电平，现在检测到高电平，说明有上升沿，对脉冲计数
+             -加一
+                              if (detect_speed_pulse_cnt[0] < 4294967295) // 防止计数溢出
+                              {
+C51 COMPILER V9.60.7.0   TMR2                                                              12/05/2025 17:28:58 PAGE 4   
+
+                                  detect_speed_pulse_cnt[0]++;
+                              }
+              #endif // 定时扫描脉冲个数来计算时速的方式
+ 174   4      
+ 175   4                      speed_pulse_cnt++;
+ 176   4                      update_speed_scan_data();
+ 177   4                  }
+ 178   3      
+ 179   3                  last_speed_scan_level = 1;
+ 180   3              }
+ 181   2              else
+ 182   2              {
+ 183   3                  // 如果现在检测到低电平
+ 184   3                  last_speed_scan_level = 0;
+ 185   3              }
+ 186   2      #endif
+ 187   2          }
+ 188   1      
+ 189   1          // P20 = 0; // 测试中断持续时间
+ 190   1          // 退出中断设置IP，不可删除
+ 191   1          __IRQnIPnPop(TMR2_IRQn);
+ 192   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    332    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      3    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      2    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

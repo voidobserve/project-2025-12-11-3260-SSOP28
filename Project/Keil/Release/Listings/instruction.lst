@@ -1,0 +1,785 @@
+C51 COMPILER V9.60.7.0   INSTRUCTION                                                       12/05/2025 17:29:00 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE INSTRUCTION
+OBJECT MODULE PLACED IN .\Release\Objects\instruction.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE ..\..\User\instruction.c LARGE OPTIMIZE(9,SIZE) BROWSE ORDER INTVECTOR(0
+                    -X000C) INCDIR(..\..\Libraries\Include;..\..\User;..\..\User\lib;..\..\Hardware) INTERVAL(3) DEBUG OBJECTEXTEND PRINT(.\R
+                    -elease\Listings\instruction.lst) OBJECT(.\Release\Objects\instruction.obj)
+
+line level    source
+
+   1          #include "instruction.h"
+   2          
+   3          #include <string.h> // memset()
+   4          
+   5          // 用bit定义，来节省空间
+   6          // 下面的标志位，有可能是从串口接收到了指令来置位，也有可能是其他的扫描�
+             -��数更新了状态来置位
+   7          volatile bit flag_get_all_status; // 获取所有功能的状态
+   8          volatile bit flag_get_gear;       // 获取挡位状态 / 得到了挡位的状态
+   9          volatile bit flag_get_battery;    // 获取电池状态 / 得到了电池的状态（电池电量，单位
+             -：百分比）
+  10          // volatile bit flag_get_brake;        // 获取刹车状态 / 得到了刹车的状态
+  11          // volatile bit flag_get_left_turn;    // 获取左转向灯的状态 / 得到了左转向灯的状态
+  12          // volatile bit flag_get_right_turn;   // 获取右转向灯的状态 / 得到了右转向灯的状态
+  13          // volatile bit flag_get_high_beam;    // 获取远光灯的状态 / 得到了远光灯的状态
+  14          volatile bit flag_get_engine_speed; // 获取发动机的转速 / 得到了发动机的转速
+  15          volatile bit flag_get_speed;        // 获取时速 / 得到了时速
+  16          volatile bit flag_get_fuel;         // 获取油量 / 得到了油量（单位：百分比）
+  17          #if TEMP_OF_WATER_SCAN_ENABLE
+              // volatile bit flag_get_temp_of_water = 0; // 获取水温 / 得到了水温
+              #endif
+  20          volatile bit flag_update_malfunction_status; // 标志位，更新故障状态
+  21          volatile bit flag_update_abs_status;         // 标志位，更新abs的状态
+  22          
+  23          volatile bit flag_get_total_mileage;       // 获取大计里程 / 得到了大计里程(数据需要更�
+             -�)
+  24          volatile bit flag_get_sub_total_mileage;   // 获取小计里程 / 得到了小计里程(数据需要更�
+             -�)
+  25          volatile bit flag_get_sub_total_mileage_2; // 获取小计里程2 / 得到了小计里程2(数据需要更
+             -新)
+  26          
+  27          // volatile bit flag_get_touch_key_status = 0; // 获取触摸按键的状态
+  28          // volatile bit flag_alter_date = 0; // 修改日期
+  29          volatile bit flag_alter_time; // 修改时间
+  30          
+  31          volatile bit flag_get_voltage_of_battery; // 获取电池电压
+  32          
+  33          #if TEMP_OF_WATER_SCAN_ENABLE
+              volatile bit flag_set_temp_of_water_warning = 0; // 设置水温报警
+              #endif
+  36          
+  37          volatile bit flag_clear_total_mileage;       // 清除大计里程
+  38          volatile bit flag_clear_sub_total_mileage;   // 清除小计里程
+  39          volatile bit flag_clear_sub_total_mileage_2; // 清除小计里程2
+  40          
+  41          volatile u8 synchronous_request_status;    // 同步请求状态机
+  42          volatile u16 synchronous_request_time_cnt; // 同步请求时间计时
+  43          
+  44          volatile u8 update_time_status; // 更新时间的状态机
+  45          // volatile u8 update_date_status = 0; // 更新日期的状态机
+  46          
+  47          volatile u16 update_time_cooling_cnt; // 更新时间的冷却计数
+  48          // volatile u16 update_date_cooling_cnt = 0; // 更新日期的冷却计数
+C51 COMPILER V9.60.7.0   INSTRUCTION                                                       12/05/2025 17:29:00 PAGE 2   
+
+  49          
+  50          // // 存放接收到的设置水温报警的指令中，对应的操作，默认为无操作
+  51          // volatile u8 operation_set_temp_of_water_warning = OPERATION_SET_TEMP_OF_WATER_WARNING_NONE;
+  52          
+  53          // 检查接收是否正确的函数，如果接收正确，
+  54          // 根据接收到的数据中的指令，给对应的指令的标志位置一
+  55          void instruction_scan(void)
+  56          {
+  57   1          u8 i = 0; // 注意要大于等于缓冲区能存放的指令数目
+  58   1          for (i = 0; i < (UART0_RXBUF_LEN) / (FRAME_MAX_LEN); i++)
+  59   1          {
+  60   2              if (flagbuf_valid_instruction[i]) // 如果对应的位置有合法的数据帧
+  61   2              {
+  62   3                  // 根据接收到数据中的指令，给对应的指令的标志位置一
+  63   3                  // if (4 == uart0_recv_buf[i][1]) // 如果是四位长度的指令
+  64   3                  {
+  65   4                      switch (uart0_recv_buf[i][2]) // 根据不同的指令来给对应的标志位置一
+  66   4                      {
+  67   5                      case INSTRUCTION_GET_ALL_STATUS: // 获取所有功能的状态
+  68   5                          flag_get_all_status = 1;
+  69   5                          break;
+  70   5      
+  71   5                      case INSTRUCTION_GET_TOTAL_MILEAGE: // 获取大计里程
+  72   5                          flag_get_total_mileage = 1;
+  73   5                          break;
+  74   5      
+  75   5                      case INSTRUCTION_GET_SUBTOTAL_MILEAGE: // 获取小计里程
+  76   5                          flag_get_sub_total_mileage = 1;
+  77   5                          break;
+  78   5      
+  79   5                      case INSTRUCTION_GET_SUBTOTAL_MILEAGE_2: // 获取小计里程2
+  80   5                          flag_get_sub_total_mileage_2 = 1;
+  81   5                          break;
+  82   5      
+  83   5                      case INSTRUCTION_ALTER_TIME: // 修改时间
+  84   5                          flag_alter_time = 1;
+  85   5      
+  86   5                          fun_info.aip1302_saveinfo.year = (u16)((u32)uart0_recv_buf[i][3] << 8) +
+  87   5                                                           (u16)uart0_recv_buf[i][4];
+  88   5                          fun_info.aip1302_saveinfo.month = uart0_recv_buf[i][5];
+  89   5                          fun_info.aip1302_saveinfo.day = uart0_recv_buf[i][6];
+  90   5      
+  91   5                          fun_info.aip1302_saveinfo.time_hour = uart0_recv_buf[i][7];
+  92   5                          fun_info.aip1302_saveinfo.time_min = uart0_recv_buf[i][8];
+  93   5                          fun_info.aip1302_saveinfo.time_sec = uart0_recv_buf[i][9];
+  94   5      
+  95   5      #if USE_MY_DEBUG
+              #if 0 // 打印串口缓冲区的数据
+              
+                                  {
+                                      u8 i = 0;
+                                      u8 j = 0;
+                                      for (i = 0; i < (UART0_RXBUF_LEN) / (FRAME_MAX_LEN); i++)
+                                      {
+                                          printf("buff_index %bu ", i);
+                                          for (j = 0; j < FRAME_MAX_LEN; j++)
+                                          {
+                                              printf("%bx ", uart0_recv_buf[i][j]);
+                                          }
+                                          printf("\n");
+                                      }
+                                  }
+C51 COMPILER V9.60.7.0   INSTRUCTION                                                       12/05/2025 17:29:00 PAGE 3   
+
+              
+              #endif // 打印串口缓冲区的数据
+              #endif
+ 114   5      
+ 115   5                          break;
+ 116   5      
+ 117   5                      case INSTRUCTION_CLEAR_TOTAL_MILEAGE: // 清除大计里程
+ 118   5                          flag_clear_total_mileage = 1;
+ 119   5                          break;
+ 120   5      
+ 121   5                      case INSTRUCTION_CLEAR_SUBTOTAL_MILEAGE: // 清除小计里程
+ 122   5                          flag_clear_sub_total_mileage = 1;
+ 123   5                          // printf("clear\n");
+ 124   5                          break;
+ 125   5      
+ 126   5                      case INSTRUCTION_CLEAR_SUBTOTAL_MILEAGE_2: // 清除小计里程2
+ 127   5                          flag_clear_sub_total_mileage_2 = 1;
+ 128   5                          break;
+ 129   5                      }
+ 130   4      
+ 131   4                      if (recv_frame_cnt > 0) //
+ 132   4                      {
+ 133   5                          recv_frame_cnt--; // 从串口接收的数据帧数目减一，表示指令已经从�
+             -�冲区取出
+ 134   5                      }
+ 135   4      
+ 136   4                      flagbuf_valid_instruction[i] = 0; // 清空缓冲区对应的元素，表示该下标的�
+             -�令已经处理
+ 137   4                      uart0_recv_len[i] = 0;
+ 138   4                      recved_flagbuf[i] = 0;
+ 139   4                      memset(uart0_recv_buf[i], 0, FRAME_MAX_LEN); // 清空缓冲区对应的元素
+ 140   4                  } // if (4 == uart0_recv_buf[i][1])
+ 141   3              }
+ 142   2          }
+ 143   1      }
+ 144          
+ 145          void instruction_handle(void)
+ 146          {
+ 147   1      #if 0
+                  if (flag_get_all_status)
+                  {
+                      // 如果要获取所有功能的状态
+                      // u32 temp_val = 0;        // 临时变量(在发送日期和时间使用到)
+                      flag_get_all_status = 0; // 清除标志位
+              
+              #if USE_MY_DEBUG
+                      // printf(" flag_get_all_status\n");
+              #endif
+              
+                      if (synchronous_request_status == SYN_REQUEST_STATUS_NONE)
+                      {
+                          // printf("handle get_all_status\n");// 测试通过，每次收到同步请求，都会等待
+             -冷却后，才处理下一次同步请求
+                          synchronous_request_status = SYN_REQUEST_STATUS_HANDLING;
+                          // 获取所有功能的状态，需要把这些功能对应的状态都发送出去
+                          send_data(SEND_GEAR, fun_info.gear);       // 发送当前挡位的状态
+                          send_data(SEND_BATTERY, fun_info.battery); // 发送电池电量 
+                          send_data(SEND_ENGINE_SPEED, fun_info.engine_speeed);              // 发送发动机转速
+                          send_data(SEND_SPEED, fun_info.speed);                             // 发送当前采集到的
+             -车速（时速）
+                          send_data(SEND_SPEED_WITH_MILE, (u32)fun_info.speed * 621 / 1000); // 发送时速（单位：
+             -英里每小时 mile/h） 1km/h == 0.621427mile/h
+C51 COMPILER V9.60.7.0   INSTRUCTION                                                       12/05/2025 17:29:00 PAGE 4   
+
+                          send_data(SEND_FUEL, fun_info.fuel);                               // 9. 发送当前油量(�
+             -�位：百分比)
+               
+                          send_data(SEND_TOTAL_MILEAGE_TENTH_OF_KM, (u32)fun_info.save_info.total_mileage / 100);      /
+             -/ 发送大计里程， 数据 3 byte ， 单位： 0.1 km
+                          send_data(SEND_SUBTOTAL_MILEAGE_TENTH_OF_MILE, (u32)fun_info.save_info.total_mileage / 161); /
+             -/ 发送大计里程， 数据 3 byte ， 单位： 0.1 mile 
+              
+                          send_data(SEND_TOTAL_MILEAGE_WITH_MILE, fun_info.save_info.total_mileage / 1610);             
+             -  // 发送大计里程（总里程，单位：英里 mile），只发送1英里以上的数据
+                          send_data(SEND_SUBTOTAL_MILEAGE_WITH_TENTH_OF_MILE, fun_info.save_info.subtotal_mileage / 161)
+             -; // 发送小计里程（总里程，单位：0.1 英里 0.1 mile），只发送0.1英里以上的数据
+              
+                          // 13. 发送触摸按键的状态
+                          // send_data(SEND_TOUCH_KEY_STATUS, fun_info.touch_key_val);
+              
+              #if IC_1302_ENABLE
+                          aip1302_read_all(); // 先从aip1302时钟ic获取所有关于时间的信息，再发送
+                          // 14. 发送当前日期
+                          //     temp_val = ((u32)fun_info.aip1302_saveinfo.year << 16) |
+                          //                ((u32)fun_info.aip1302_saveinfo.month << 8) |
+                          //                fun_info.aip1302_saveinfo.day;
+                          //     send_data(SEND_DATE, temp_val);
+                          // 15. 发送当前时间
+                          //     temp_val = ((u32)fun_info.aip1302_saveinfo.time_hour << 16) |
+                          //                ((u32)fun_info.aip1302_saveinfo.time_min << 8) |
+                          //                fun_info.aip1302_saveinfo.time_sec;
+                          //     send_data(SEND_TIME, temp_val);
+                          send_data(SEND_TIME, 0); // 第二个参数无效
+                                                   // printf("time send\n");
+              #endif // #if IC_1302_ENABLE
+              
+                          // 16. 发送当前的电池电压
+                          send_data(SEND_VOLTAGE_OF_BATTERY, fun_info.voltage_of_battery);
+              
+              #if TEMP_OF_WATER_SCAN_ENABLE
+                          // 17. 发送当前的水温报警状态
+                          send_data(SEND_TEMP_OF_WATER_ALERT, fun_info.flag_is_in_water_temp_warning);
+              #endif
+              
+                          send_data(SEND_SUBTOTAL_MILEAGE_2, fun_info.save_info.subtotal_mileage_2 / 100);              
+             -      // 发送小计里程2(只发送百米及以上的数据)
+                          send_data(SEND_SUBTOTAL_MILEAGE_2_WITH_TENTH_OF_MILE, fun_info.save_info.subtotal_mileage_2 / 
+             -161); // 发送小计里程2(只发送0.1英里及以上的数据)
+                      }
+                  }
+              
+                  if (flag_get_gear) // 如果要获取挡位的状态
+                  {
+                      flag_get_gear = 0; //
+              
+              #if USE_MY_DEBUG
+                      // printf(" flag_get_gear\n");
+              #endif
+              
+                      send_data(SEND_GEAR, fun_info.gear); // 发送当前挡位的状态
+                                                           // printf("cur gear %u\n", fun_info.gear);
+                  } //  if (flag_get_gear) // 如果要获取挡位的状态
+              
+                  if (flag_get_battery)
+                  {
+                      // 如果要获取电池电量的状态
+C51 COMPILER V9.60.7.0   INSTRUCTION                                                       12/05/2025 17:29:00 PAGE 5   
+
+                      flag_get_battery = 0;
+              #if USE_MY_DEBUG
+                      // printf(" flag_get_battery\n");
+              #endif
+              
+                      send_data(SEND_BATTERY, fun_info.battery); // 发送电池电量
+                  }
+              
+              #if 0 // 发送刹车的状态
+                  if (flag_get_brake)
+                  {
+                      // 如果要获取获取刹车的状态
+                      flag_get_brake = 0;
+              
+              #if USE_MY_DEBUG
+                      // printf(" flag_get_brake\n");
+              #endif
+              
+                      send_data(SEND_BARKE, fun_info.brake); // 发送当前刹车的状态
+                  }
+              #endif // 发送刹车的状态
+              
+                  //     if (flag_get_left_turn) // 如果要获取左转向灯的状态
+                  //     {
+                  //         flag_get_left_turn = 0;
+              
+                  // #if USE_MY_DEBUG
+                  //         // printf(" flag_get_left_turn\n");
+                  // #endif
+              
+                  //         send_data(SEND_LEFT_TURN, fun_info.left_turn); // 发送当前左转向灯的状态
+                  //     } // if (flag_get_left_turn) // 如果要获取左转向灯的状态
+              
+                  //     if (flag_get_right_turn)
+                  //     {
+                  //         // 如果要获取右转向灯的状态
+                  //         flag_get_right_turn = 0;
+                  // #if USE_MY_DEBUG
+                  //         // printf(" flag_get_right_turn\n");
+                  // #endif
+                  //         send_data(SEND_RIGHT_TURN, fun_info.right_turn); // 发送当前右转向灯的状态
+                  //     }
+              
+                  //     if (flag_get_high_beam)
+                  //     {
+                  //         // 如果要获取远光灯的状态
+                  //         flag_get_high_beam = 0;
+                  // #if USE_MY_DEBUG
+                  //         // printf(" flag_get_high_beam\n");
+                  // #endif
+                  //         send_data(SEND_HIGH_BEAM, fun_info.high_beam); // 发送当前远光灯的状态
+                  //     }
+              
+                  if (flag_get_engine_speed)
+                  {
+                      // 如果要获取发动机的转速
+                      flag_get_engine_speed = 0;
+              #if USE_MY_DEBUG
+                      // printf(" flag_get_engine_speed \n");
+                      // printf(" cur engine speed %u rpm ", (u16)fun_info.engine_speeed);
+              #endif
+                      send_data(SEND_ENGINE_SPEED, fun_info.engine_speeed); //
+C51 COMPILER V9.60.7.0   INSTRUCTION                                                       12/05/2025 17:29:00 PAGE 6   
+
+                  }
+              
+                  if (flag_get_speed)
+                  {
+                      // 如果要获取时速 （速度）
+                      flag_get_speed = 0;
+              #if USE_MY_DEBUG
+                      // printf(" flag_get_speed \n");
+              #endif
+              
+                      send_data(SEND_SPEED, fun_info.speed); // 发送当前采集到的车速（时速）
+                                                             // printf("cur speed %lu km/h\n", fun_info.speed);
+              
+                      // 1km/h == 0.621427mile/h
+                      send_data(SEND_SPEED_WITH_MILE, (u32)fun_info.speed * 621 / 1000);
+                  }
+              
+                  if (flag_get_fuel)
+                  {
+                      // 如果要获取油量
+                      flag_get_fuel = 0;
+              
+              #if USE_MY_DEBUG
+                      // printf(" flag_get_fuel \n");
+              #endif
+              
+                      send_data(SEND_FUEL, fun_info.fuel);
+                  }
+              
+                  // 不用发送水温，改为发送水温报警
+                  //     if (flag_get_temp_of_water)
+                  //     {
+                  //         // 如果要获取水温
+                  //         flag_get_temp_of_water = 0;
+                  // #if USE_MY_DEBUG
+                  //         printf(" flag_get_temp_of_water \n");
+                  // #endif
+                  //         send_data(SEND_WATER_TEMP, fun_info.temp_of_water);
+                  //     }
+              
+                  if (flag_update_malfunction_status) // 更新故障的状态
+                  {
+                      flag_update_malfunction_status = 0;
+                      send_data(SEND_MALFUNCTION_STATUS, fun_info.flag_is_detect_malfunction);
+              
+                      // 没有引脚检测ABS，那么检测到故障之后，也发送ABS的状态
+                      send_data(SEND_ABS_STATUS, fun_info.flag_is_detect_abs);
+                  }
+              
+                  if (flag_get_total_mileage) // 如果要获取大计里程 / 得到了大计里程新的数据
+                  {
+                      flag_get_total_mileage = 0;
+              #if USE_MY_DEBUG
+                      // printf(" flag_get_total_mileage \n");
+                      // printf(" cur total mileage %lu m \n", (u32)fun_info.save_info.total_mileage);
+              #endif
+              
+                      // 只发送千米及以上的数据
+                      send_data(SEND_TOTAL_MILEAGE, (fun_info.save_info.total_mileage / 1000));
+                      send_data(SEND_TOTAL_MILEAGE_WITH_MILE, fun_info.save_info.total_mileage / 1610); // 1km == 0.6214
+             -27mile
+              
+C51 COMPILER V9.60.7.0   INSTRUCTION                                                       12/05/2025 17:29:00 PAGE 7   
+
+                  }  
+              
+                  if (flag_get_sub_total_mileage) // 如果要获取小计里程 / 得到了小计里程新的数据
+                  {
+              
+                      flag_get_sub_total_mileage = 0;
+                      // printf(" cur subtotal mileage %lu m \n", (u32)fun_info.save_info.subtotal_mileage);
+              
+                      // 只发送百米及以上的数据
+                      send_data(SEND_SUBTOTAL_MILEAGE, fun_info.save_info.subtotal_mileage / 100);
+              
+                      // 1km == 0.621427mile，1km == 6.21427 * 0.1 mile
+                      send_data(SEND_SUBTOTAL_MILEAGE_WITH_TENTH_OF_MILE, fun_info.save_info.subtotal_mileage / 161);
+              
+                  } 
+              
+                  if (flag_get_sub_total_mileage_2) // // 如果要获取小计里程2 / 得到了小计里程2新的数
+             -据
+                  {
+                      flag_get_sub_total_mileage_2 = 0;
+                      // 只发送百米及以上的数据
+                      send_data(SEND_SUBTOTAL_MILEAGE_2, fun_info.save_info.subtotal_mileage_2 / 100);
+                      // 1km == 0.621427mile，1km == 6.21427 * 0.1 mile
+                      send_data(SEND_SUBTOTAL_MILEAGE_2_WITH_TENTH_OF_MILE, fun_info.save_info.subtotal_mileage_2 / 161)
+             -;
+                  }
+              
+              #if 0 // 修改日期
+                  if (flag_alter_date)
+                  {
+                      // 如果要修改日期
+                      flag_alter_date = 0;
+              #if USE_MY_DEBUG
+                      printf(" flag_alter_date \n");
+                      printf("year %u month %bu day %bu \n", fun_info.aip1302_saveinfo.year, fun_info.aip1302_saveinfo.m
+             -onth, fun_info.aip1302_saveinfo.day);
+              #endif
+              
+                      if (update_date_status == UPDATE_STATUS_NONE)
+                      {
+              #if USE_MY_DEBUG
+              // printf("handle update_date \n");
+              #endif
+                          // 如果更新日期的状态已经冷却完毕，更新日期，并且进入冷却状态，
+                          // 切换状态，让定时器进行冷却计时
+                          aip1302_update_date(fun_info.aip1302_saveinfo); // 将日期更新到时钟ic
+                          update_date_status = UPDATE_STATUS_HANDLING;
+                      }
+                  }
+              #endif // 修改日期
+              
+              #if IC_1302_ENABLE
+                  if (flag_alter_time)
+                  {
+                      // 如果要修改时间
+                      flag_alter_time = 0;
+              
+                      // printf("get update time cmd\n");
+              
+              #if USE_MY_DEBUG
+                      // printf(" flag_alter_time \n");
+                      // printf("==================================\n");
+C51 COMPILER V9.60.7.0   INSTRUCTION                                                       12/05/2025 17:29:00 PAGE 8   
+
+                      // printf("year %u \n", fun_info.aip1302_saveinfo.year);
+                      // printf("month %bu \n", fun_info.aip1302_saveinfo.month);
+                      // printf("day %bu \n", fun_info.aip1302_saveinfo.day);
+                      // printf("hour %bu min %bu sec %bu \n", fun_info.aip1302_saveinfo.time_hour, fun_info.aip1302_sav
+             -einfo.time_min, fun_info.aip1302_saveinfo.time_sec);
+              #endif
+              
+                      if (update_time_status == UPDATE_STATUS_NONE)
+                      {
+                          // printf("handle update_time \n");
+                          // 如果更新时间的状态已经冷却完毕，更新时间，并且进入冷却状态，
+                          // 切换状态，让定时器进行冷却计时
+                          aip1302_update_time(fun_info.aip1302_saveinfo); // 将时间更新到时钟ic
+                          update_time_status = UPDATE_STATUS_HANDLING;
+                          // printf("time updated\n");
+                      }
+                  }
+              #endif // #if IC_1302_ENABLE
+              
+                  if (flag_get_voltage_of_battery)
+                  {
+                      // 如果要获取电池电压
+                      flag_get_voltage_of_battery = 0;
+              #if USE_MY_DEBUG
+                      // printf(" flag_get_voltage_of_battery \n");
+                      // printf(" cur voltage of battery %u \n", (u16)fun_info.voltage_of_battery);
+              #endif
+                      send_data(SEND_VOLTAGE_OF_BATTERY, fun_info.voltage_of_battery);
+                  }
+              
+              #if TEMP_OF_WATER_SCAN_ENABLE
+                  if (flag_set_temp_of_water_warning)
+                  {
+                      // 如果要设置水温报警
+                      flag_set_temp_of_water_warning = 0;
+              #if USE_MY_DEBUG
+                      // printf(" flag_set_temp_of_water_warning \n");
+              #endif
+                      //  发送当前水温报警的状态
+                      send_data(SEND_TEMP_OF_WATER_ALERT, fun_info.flag_is_in_water_temp_warning);
+                  }
+              #endif
+              
+                  if (flag_clear_total_mileage)
+                  {
+                      // 如果要清除大计里程
+                      flag_clear_total_mileage = 0;
+                      fun_info.save_info.total_mileage = 0;
+                      distance = 0;    //
+                      fun_info_save(); // 将信息写回flash
+              #if USE_MY_DEBUG
+                      // printf(" flag_clear_total_mileage \n");
+              #endif
+                  }
+              
+                  if (flag_clear_sub_total_mileage)
+                  {
+                      // 如果要清除小计里程
+                      flag_clear_sub_total_mileage = 0;
+                      fun_info.save_info.subtotal_mileage = 0;
+                      distance = 0;
+                      fun_info_save(); // 将信息写回flash
+C51 COMPILER V9.60.7.0   INSTRUCTION                                                       12/05/2025 17:29:00 PAGE 9   
+
+              #if USE_MY_DEBUG
+                      // printf(" flag_clear_sub_total_mileage \n");
+              #endif
+                  }
+              
+                  if (flag_clear_sub_total_mileage_2) // 如果要清除小计里程2
+                  {
+                      flag_clear_sub_total_mileage_2 = 0;
+                      fun_info.save_info.subtotal_mileage_2 = 0;
+                      distance = 0;
+                      fun_info_save(); // 将信息写回flash
+                  }
+              #endif
+ 479   1      
+ 480   1          if (flag_get_all_status)
+ 481   1          {
+ 482   2              // 如果要获取所有功能的状态
+ 483   2              // u32 temp_val = 0;        // 临时变量(在发送日期和时间使用到)
+ 484   2              flag_get_all_status = 0; // 清除标志位
+ 485   2      
+ 486   2      #if USE_MY_DEBUG
+                      // printf(" flag_get_all_status\n");
+              #endif
+ 489   2      
+ 490   2              if (synchronous_request_status == SYN_REQUEST_STATUS_NONE)
+ 491   2              {
+ 492   3                  // printf("handle get_all_status\n");// 测试通过，每次收到同步请求，都会等待
+             -冷却后，才处理下一次同步请求
+ 493   3                  synchronous_request_status = SYN_REQUEST_STATUS_HANDLING;
+ 494   3                  // 获取所有功能的状态，需要把这些功能对应的状态都发送出去
+ 495   3                  send_data_packet(SEND_GEAR);            // 发送当前挡位的状态
+ 496   3                  send_data_packet(SEND_BATTERY);         // 发送电池电量
+ 497   3                  send_data_packet(SEND_ENGINE_SPEED);    // 发送发动机转速
+ 498   3                  send_data_packet(SEND_SPEED);           // 发送当前采集到的车速（时速）
+ 499   3                  send_data_packet(SEND_SPEED_WITH_MILE); // 发送时速（单位：英里每小时 mile/h） 1
+             -km/h == 0.621427mile/h
+ 500   3                  send_data_packet(SEND_FUEL);            // 发送当前油量(单位：百分比)
+ 501   3      
+ 502   3                  send_data_packet(SEND_TOTAL_MILEAGE_TENTH_OF_KM);      // 发送大计里程， 数据 3 byte 
+             -， 单位： 0.1 km
+ 503   3                  // send_data_packet(SEND_SUBTOTAL_MILEAGE_TENTH_OF_MILE); // 发送大计里程， 数据 3 by
+             -te ， 单位： 0.1 mile
+ 504   3      
+ 505   3                  // send_data_packet(SEND_TOTAL_MILEAGE_WITH_MILE);             // 发送大计里程（总里�
+             -��，单位：英里 mile），只发送1英里以上的数据
+ 506   3                  // send_data_packet(SEND_SUBTOTAL_MILEAGE_WITH_TENTH_OF_MILE); // 发送小计里程（总里�
+             -��，单位：0.1 英里 0.1 mile），只发送0.1英里以上的数据
+ 507   3      
+ 508   3      #if IC_1302_ENABLE
+ 509   3                  aip1302_read_all(); // 先从aip1302时钟ic获取所有关于时间的信息，再发送
+ 510   3      
+ 511   3                  send_data_packet(SEND_TIME);
+ 512   3                  // printf("time send\n");
+ 513   3      #endif // #if IC_1302_ENABLE
+ 514   3      
+ 515   3                  // 发送当前的电池电压
+ 516   3                  send_data_packet(SEND_VOLTAGE_OF_BATTERY);
+ 517   3      
+ 518   3      #if TEMP_OF_WATER_SCAN_ENABLE
+                          // 发送当前的水温报警状态
+                          send_data_packet(SEND_TEMP_OF_WATER_ALERT);
+              #endif
+C51 COMPILER V9.60.7.0   INSTRUCTION                                                       12/05/2025 17:29:00 PAGE 10  
+
+ 522   3      
+ 523   3                  // send_data_packet(SEND_SUBTOTAL_MILEAGE_2);                    // 发送小计里程2(只发
+             -送百米及以上的数据)
+ 524   3                  // send_data_packet(SEND_SUBTOTAL_MILEAGE_2_WITH_TENTH_OF_MILE); // 发送小计里程2(只发
+             -送0.1英里及以上的数据)
+ 525   3              }
+ 526   2          }
+ 527   1      
+ 528   1          if (flag_get_gear) // 如果要获取挡位的状态
+ 529   1          {
+ 530   2              flag_get_gear = 0; //
+ 531   2      
+ 532   2      #if USE_MY_DEBUG
+                      // printf(" flag_get_gear\n");
+              #endif
+ 535   2      
+ 536   2              send_data_packet(SEND_GEAR); // 发送当前挡位的状态
+ 537   2                                           // printf("cur gear %u\n", fun_info.gear);
+ 538   2          } //  if (flag_get_gear) // 如果要获取挡位的状态
+ 539   1      
+ 540   1          if (flag_get_battery)
+ 541   1          {
+ 542   2              // 如果要获取电池电量的状态
+ 543   2              flag_get_battery = 0;
+ 544   2      #if USE_MY_DEBUG
+                      // printf(" flag_get_battery\n");
+              #endif
+ 547   2      
+ 548   2              send_data_packet(SEND_BATTERY); // 发送电池电量
+ 549   2          }
+ 550   1      
+ 551   1          if (flag_get_engine_speed)
+ 552   1          {
+ 553   2              // 如果要获取发动机的转速
+ 554   2              flag_get_engine_speed = 0;
+ 555   2      #if USE_MY_DEBUG
+                      // printf(" flag_get_engine_speed \n");
+                      // printf(" cur engine speed %u rpm ", (u16)fun_info.engine_speeed);
+              #endif
+ 559   2              send_data_packet(SEND_ENGINE_SPEED); //
+ 560   2          }
+ 561   1      
+ 562   1          if (flag_get_speed)
+ 563   1          {
+ 564   2              // 如果要获取时速 （速度）
+ 565   2              flag_get_speed = 0;
+ 566   2      #if USE_MY_DEBUG
+                      // printf(" flag_get_speed \n");
+              #endif
+ 569   2      
+ 570   2              send_data_packet(SEND_SPEED); // 发送当前采集到的车速（时速）
+ 571   2                                            // printf("cur speed %lu km/h\n", fun_info.speed);
+ 572   2      
+ 573   2              // 1km/h == 0.621427mile/h
+ 574   2              send_data_packet(SEND_SPEED_WITH_MILE);
+ 575   2          }
+ 576   1      
+ 577   1          if (flag_get_fuel)
+ 578   1          {
+ 579   2              // 如果要获取油量
+ 580   2              flag_get_fuel = 0;
+ 581   2      
+C51 COMPILER V9.60.7.0   INSTRUCTION                                                       12/05/2025 17:29:00 PAGE 11  
+
+ 582   2      #if USE_MY_DEBUG
+                      // printf(" flag_get_fuel \n");
+              #endif
+ 585   2      
+ 586   2              send_data_packet(SEND_FUEL);
+ 587   2          }
+ 588   1      
+ 589   1          if (flag_update_malfunction_status) // 更新故障的状态
+ 590   1          {
+ 591   2              flag_update_malfunction_status = 0;
+ 592   2              send_data_packet(SEND_MALFUNCTION_STATUS);
+ 593   2      
+ 594   2              // 没有引脚检测ABS，那么检测到故障之后，也发送ABS的状态
+ 595   2              send_data_packet(SEND_ABS_STATUS);
+ 596   2          }
+ 597   1      
+ 598   1          if (flag_get_total_mileage) // 如果要获取大计里程 / 得到了大计里程新的数据
+ 599   1          {
+ 600   2              flag_get_total_mileage = 0;
+ 601   2      #if USE_MY_DEBUG
+                      // printf(" flag_get_total_mileage \n");
+                      // printf(" cur total mileage %lu m \n", (u32)fun_info.save_info.total_mileage);
+              #endif
+ 605   2      
+ 606   2              // 只发送千米及以上的数据
+ 607   2              // send_data_packet(SEND_TOTAL_MILEAGE_TENTH_OF_KM);
+ 608   2              // send_data_packet(SEND_TOTAL_MILEAGE_WITH_MILE); // 1km == 0.621427mile
+ 609   2          }
+ 610   1      
+ 611   1          if (flag_get_sub_total_mileage) // 如果要获取小计里程 / 得到了小计里程新的数据
+ 612   1          {
+ 613   2      
+ 614   2              flag_get_sub_total_mileage = 0;
+ 615   2              // printf(" cur subtotal mileage %lu m \n", (u32)fun_info.save_info.subtotal_mileage);
+ 616   2      
+ 617   2              // 只发送百米及以上的数据
+ 618   2              send_data_packet(SEND_TOTAL_MILEAGE_TENTH_OF_KM);
+ 619   2      
+ 620   2              // 1km == 0.621427mile，1km == 6.21427 * 0.1 mile
+ 621   2              // send_data_packet(SEND_SUBTOTAL_MILEAGE_WITH_TENTH_OF_MILE);
+ 622   2          }
+ 623   1      
+ 624   1          if (flag_get_sub_total_mileage_2) // // 如果要获取小计里程2 / 得到了小计里程2新的数
+             -据
+ 625   1          {
+ 626   2              flag_get_sub_total_mileage_2 = 0;
+ 627   2              // 只发送百米及以上的数据
+ 628   2              // send_data_packet(SEND_SUBTOTAL_MILEAGE_2);
+ 629   2              // 1km == 0.621427mile，1km == 6.21427 * 0.1 mile
+ 630   2              // send_data_packet(SEND_SUBTOTAL_MILEAGE_2_WITH_TENTH_OF_MILE);
+ 631   2          }
+ 632   1      
+ 633   1      #if IC_1302_ENABLE
+ 634   1          if (flag_alter_time)
+ 635   1          {
+ 636   2              // 如果要修改时间
+ 637   2              flag_alter_time = 0;
+ 638   2      
+ 639   2              // printf("get update time cmd\n");
+ 640   2      
+ 641   2      #if USE_MY_DEBUG
+                      // printf(" flag_alter_time \n");
+C51 COMPILER V9.60.7.0   INSTRUCTION                                                       12/05/2025 17:29:00 PAGE 12  
+
+                      // printf("==================================\n");
+                      // printf("year %u \n", fun_info.aip1302_saveinfo.year);
+                      // printf("month %bu \n", fun_info.aip1302_saveinfo.month);
+                      // printf("day %bu \n", fun_info.aip1302_saveinfo.day);
+                      // printf("hour %bu min %bu sec %bu \n", fun_info.aip1302_saveinfo.time_hour, fun_info.aip1302_sav
+             -einfo.time_min, fun_info.aip1302_saveinfo.time_sec);
+              #endif
+ 649   2      
+ 650   2              if (update_time_status == UPDATE_STATUS_NONE)
+ 651   2              {
+ 652   3                  // printf("handle update_time \n");
+ 653   3                  // 如果更新时间的状态已经冷却完毕，更新时间，并且进入冷却状态，
+ 654   3                  // 切换状态，让定时器进行冷却计时
+ 655   3                  aip1302_update_time(fun_info.aip1302_saveinfo); // 将时间更新到时钟ic
+ 656   3                  update_time_status = UPDATE_STATUS_HANDLING;
+ 657   3                  // printf("time updated\n");
+ 658   3              }
+ 659   2          }
+ 660   1      #endif // #if IC_1302_ENABLE
+ 661   1      
+ 662   1          if (flag_get_voltage_of_battery)
+ 663   1          {
+ 664   2              // 如果要获取电池电压
+ 665   2              flag_get_voltage_of_battery = 0;
+ 666   2      #if USE_MY_DEBUG
+                      // printf(" flag_get_voltage_of_battery \n");
+                      // printf(" cur voltage of battery %u \n", (u16)fun_info.voltage_of_battery);
+              #endif
+ 670   2              send_data_packet(SEND_VOLTAGE_OF_BATTERY);
+ 671   2          }
+ 672   1      
+ 673   1          if (flag_clear_total_mileage)
+ 674   1          {
+ 675   2              // 如果要清除大计里程
+ 676   2              flag_clear_total_mileage = 0;
+ 677   2              fun_info.save_info.total_mileage = 0;
+ 678   2              distance = 0;    //
+ 679   2              fun_info_save(); // 将信息写回flash
+ 680   2      #if USE_MY_DEBUG
+                      // printf(" flag_clear_total_mileage \n");
+              #endif
+ 683   2          }
+ 684   1      
+ 685   1          if (flag_clear_sub_total_mileage)
+ 686   1          {
+ 687   2              // 如果要清除小计里程
+ 688   2              flag_clear_sub_total_mileage = 0;
+ 689   2              fun_info.save_info.subtotal_mileage = 0;
+ 690   2              distance = 0;
+ 691   2              fun_info_save(); // 将信息写回flash
+ 692   2      #if USE_MY_DEBUG
+                      // printf(" flag_clear_sub_total_mileage \n");
+              #endif
+ 695   2          }
+ 696   1      
+ 697   1          if (flag_clear_sub_total_mileage_2) // 如果要清除小计里程2
+ 698   1          {
+ 699   2              flag_clear_sub_total_mileage_2 = 0;
+ 700   2              fun_info.save_info.subtotal_mileage_2 = 0;
+ 701   2              distance = 0;
+ 702   2              fun_info_save(); // 将信息写回flash
+ 703   2          }
+C51 COMPILER V9.60.7.0   INSTRUCTION                                                       12/05/2025 17:29:00 PAGE 13  
+
+ 704   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    651    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      6       1
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =     16    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
