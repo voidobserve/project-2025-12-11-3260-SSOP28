@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   SEND_DATA                                                         12/05/2025 17:29:00 PAGE 1   
+C51 COMPILER V9.60.7.0   SEND_DATA                                                         12/12/2025 16:07:28 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE SEND_DATA
@@ -62,7 +62,7 @@ line level    source
                   else if (
                       // SEND_SUBTOTAL_MILEAGE_2 == instruct ||                    /* 发送小计里程2 */
                       // SEND_TOTAL_MILEAGE_WITH_MILE == instruct ||               /* 发送大计里程（总里程，�
-C51 COMPILER V9.60.7.0   SEND_DATA                                                         12/05/2025 17:29:00 PAGE 2   
+C51 COMPILER V9.60.7.0   SEND_DATA                                                         12/12/2025 16:07:28 PAGE 2   
 
              -��位：英里 mile） */
                       // SEND_SUBTOTAL_MILEAGE_WITH_TENTH_OF_MILE == instruct ||   /* 发送小计里程（总里程，�
@@ -126,7 +126,7 @@ line level    source
                   }
               
                   // check_num &= 0x0F;         // 取前面的数字相加的低四位
-C51 COMPILER V9.60.7.0   SEND_DATA                                                         12/05/2025 17:29:00 PAGE 3   
+C51 COMPILER V9.60.7.0   SEND_DATA                                                         12/12/2025 16:07:28 PAGE 3   
 
                   check_num &= 0xFF;         // 取前面的数字相加的低八位
                   uart0_sendbyte(check_num); // 发送校验和
@@ -143,7 +143,7 @@ line level    source
  123   1              测试发现，如果没有用 volatile 修饰，
  124   1              接收端在校验阶段有小概率会得到计算的校验和与存放的校验和不一致的�
              -�况
- 125   1          */ 
+ 125   1          */
  126   1          static volatile u8 send_data_packet[SEND_DATA_BUFF_MAX_LEN];
  127   1          volatile u8 send_data_packet_len = 0;
  128   1          volatile u8 check_sum = 0;
@@ -190,7 +190,7 @@ line level    source
  169   3              send_data_packet[1] = send_data_packet_len;
  170   3              send_data_packet[3] = fun_info.left_turn;
  171   3          }
-C51 COMPILER V9.60.7.0   SEND_DATA                                                         12/05/2025 17:29:00 PAGE 4   
+C51 COMPILER V9.60.7.0   SEND_DATA                                                         12/12/2025 16:07:28 PAGE 4   
 
  172   2          break;
  173   2      
@@ -254,12 +254,11 @@ line level    source
  231   2          //     send_data_packet[1] = send_data_packet_len;
  232   2          //     send_data_packet[3] = fun_info.temp_of_water;
  233   2          // }
-C51 COMPILER V9.60.7.0   SEND_DATA                                                         12/05/2025 17:29:00 PAGE 5   
+C51 COMPILER V9.60.7.0   SEND_DATA                                                         12/12/2025 16:07:28 PAGE 5   
 
  234   2          // break;
  235   2          // ====================================================================
- 236   2          // 发送大计里程， 数据 3 byte ， 数据直接用作屏幕显示，例如 0d 04 17 65 ，显�
-             -�� 041765 km
+ 236   2          // 发送大计里程， 数据 3 byte  
  237   2          case SEND_TOTAL_MILEAGE_TENTH_OF_KM:
  238   2          {
  239   3              send_data_packet_len = 7; // 发送指令的总长度
@@ -267,195 +266,208 @@ line level    source
  241   3      
  242   3              /*
  243   3                  发送的数据直接用作屏幕显示，这里需要提前做好转换
- 244   3              */
- 245   3              tmp_val = fun_info.save_info.total_mileage / 1000; // 存放以 km 为单位的数据
- 246   3              send_data_packet[5] = tmp_val % 100;
- 247   3              tmp_val /= 100;
- 248   3              send_data_packet[4] = tmp_val % 100;
- 249   3              tmp_val /= 100;
- 250   3              send_data_packet[3] = tmp_val % 100;
- 251   3          }
- 252   2          break;
- 253   2          // ====================================================================
- 254   2          // 发送大计里程， 数据 3 byte ， 数据直接用作屏幕显示，例如 0d 04 17 65 ，显�
-             -�� 041765 mile
- 255   2          case SEND_TOTAL_MILEAGE_TENTH_OF_MILE:
- 256   2          {
- 257   3              send_data_packet_len = 7; // 发送指令的总长度
- 258   3              send_data_packet[1] = send_data_packet_len;
- 259   3      
- 260   3              /*
- 261   3                  发送的数据直接用作屏幕显示，这里需要提前做好转换
- 262   3      
- 263   3                  1 km == 0.621371 mile
- 264   3                  1 / 0.621371 约为 1.6093444978925633800096882538773，
- 265   3                  这里取 1.61 作为转换系数
- 266   3                  1000 m / 161 ，得到 以 0.1 mile 为单位的数据
- 267   3              */
- 268   3              tmp_val = fun_info.save_info.total_mileage / 1610 ; // 得到以 mile 为单位的数据
- 269   3              send_data_packet[5] = tmp_val % 100;
- 270   3              tmp_val /= 100;
- 271   3              send_data_packet[4] = tmp_val % 100;
- 272   3              tmp_val /= 100;
- 273   3              send_data_packet[3] = tmp_val % 100;
- 274   3          }
- 275   2          break;
- 276   2          // ====================================================================
- 277   2          // 发送 时间（年月日，时分秒）
- 278   2          case SEND_TIME:
- 279   2          {
- 280   3              send_data_packet_len = 11; // 发送指令的总长度
- 281   3              send_data_packet[1] = send_data_packet_len;
- 282   3      
- 283   3              send_data_packet[3] = fun_info.aip1302_saveinfo.year >> 8;
- 284   3              send_data_packet[4] = fun_info.aip1302_saveinfo.year & 0xFF;
- 285   3              send_data_packet[5] = fun_info.aip1302_saveinfo.month;
- 286   3              send_data_packet[6] = fun_info.aip1302_saveinfo.day;
- 287   3              send_data_packet[7] = fun_info.aip1302_saveinfo.time_hour;
- 288   3              send_data_packet[8] = fun_info.aip1302_saveinfo.time_min;
- 289   3              send_data_packet[9] = fun_info.aip1302_saveinfo.time_sec;
- 290   3          }
- 291   2          break;
- 292   2          // ====================================================================
- 293   2          // 发送 电池电压
-C51 COMPILER V9.60.7.0   SEND_DATA                                                         12/05/2025 17:29:00 PAGE 6   
+ 244   3      
+ 245   3                  一个字节存储两位十进制数
+ 246   3      
+ 247   3                  (tmp_val % 100 / 10) ，取十位的数，放在低4位
+ 248   3                  (tmp_val % 10) << 4 ,取个位的数，放在高4位
+ 249   3              */
+ 250   3              tmp_val = fun_info.save_info.total_mileage / 1000; // 存放以 km 为单位的数据
+ 251   3              send_data_packet[5] = (tmp_val % 100 / 10) | (tmp_val % 10) << 4;
+ 252   3              tmp_val /= 100;
+ 253   3              send_data_packet[4] = (tmp_val % 100 / 10) | (tmp_val % 10) << 4;
+ 254   3              tmp_val /= 100;
+ 255   3              send_data_packet[3] = (tmp_val % 100 / 10) | (tmp_val % 10) << 4;
+ 256   3          }
+ 257   2          break;
+ 258   2          // ====================================================================
+ 259   2          // 发送大计里程， 数据 3 byte  
+ 260   2          case SEND_TOTAL_MILEAGE_TENTH_OF_MILE:
+ 261   2          {
+ 262   3              send_data_packet_len = 7; // 发送指令的总长度
+ 263   3              send_data_packet[1] = send_data_packet_len;
+ 264   3      
+ 265   3              /*
+ 266   3                  发送的数据直接用作屏幕显示，这里需要提前做好转换
+ 267   3      
+ 268   3                  1 km == 0.621371 mile
+ 269   3                  1 / 0.621371 约为 1.6093444978925633800096882538773，
+ 270   3                  这里取 1.61 作为转换系数
+ 271   3                  1000 m / 161 ，得到 以 0.1 mile 为单位的数据
+ 272   3              */
+ 273   3              tmp_val = fun_info.save_info.total_mileage / 1610; // 得到以 mile 为单位的数据
+ 274   3              send_data_packet[5] = (tmp_val % 100 / 10) | (tmp_val % 10) << 4;
+ 275   3              tmp_val /= 100;
+ 276   3              send_data_packet[4] = (tmp_val % 100 / 10) | (tmp_val % 10) << 4;
+ 277   3              tmp_val /= 100;
+ 278   3              send_data_packet[3] = (tmp_val % 100 / 10) | (tmp_val % 10) << 4;
+ 279   3          }
+ 280   2          break;
+ 281   2          // ====================================================================
+ 282   2          // 发送 时间（年月日，时分秒）
+ 283   2          case SEND_TIME:
+ 284   2          {
+ 285   3              send_data_packet_len = 11; // 发送指令的总长度
+ 286   3              send_data_packet[1] = send_data_packet_len;
+ 287   3      
+ 288   3              send_data_packet[3] = fun_info.aip1302_saveinfo.year >> 8;
+ 289   3              send_data_packet[4] = fun_info.aip1302_saveinfo.year & 0xFF;
+ 290   3              send_data_packet[5] = fun_info.aip1302_saveinfo.month;
+ 291   3              send_data_packet[6] = fun_info.aip1302_saveinfo.day;
+ 292   3              send_data_packet[7] = fun_info.aip1302_saveinfo.time_hour;
+ 293   3              send_data_packet[8] = fun_info.aip1302_saveinfo.time_min;
+ 294   3              send_data_packet[9] = fun_info.aip1302_saveinfo.time_sec;
+ 295   3          }
+C51 COMPILER V9.60.7.0   SEND_DATA                                                         12/12/2025 16:07:28 PAGE 6   
 
- 294   2          case SEND_VOLTAGE_OF_BATTERY:
- 295   2          {
- 296   3              send_data_packet_len = 6; // 发送指令的总长度
- 297   3              send_data_packet[1] = send_data_packet_len;
- 298   3      
- 299   3              send_data_packet[3] = fun_info.voltage_of_battery >> 8;
- 300   3              send_data_packet[4] = fun_info.voltage_of_battery & 0xFF;
- 301   3          }
- 302   2          break;
- 303   2          // ====================================================================
- 304   2          // 发送 水温报警
- 305   2          // case SEND_TEMP_OF_WATER_ALERT:
- 306   2          // {
- 307   2          //     send_data_packet_len = 5;
- 308   2          //     send_data_packet[1] = send_data_packet_len;
- 309   2          //     // send_data_packet[3] = ;
- 310   2          // }
- 311   2          // ====================================================================
- 312   2          // 发送 发送小计里程， 数据 3 byte ， 数据直接用作屏幕显示，例如 0d 04 17 65 
-             -，显示 04176.5 km
- 313   2          case SEND_SUBTOTAL_MILEAGE_TENTH_OF_KM:
- 314   2          {
- 315   3              send_data_packet_len = 7; // 发送指令的总长度
- 316   3              send_data_packet[1] = send_data_packet_len;
- 317   3      
- 318   3              /*
- 319   3                  发送的数据直接用作屏幕显示，这里需要提前做好转换
- 320   3              */
- 321   3              tmp_val = fun_info.save_info.subtotal_mileage / 100; // 存放以百米为单位的数据
- 322   3              send_data_packet[5] = tmp_val % 100;
- 323   3              tmp_val /= 100;
- 324   3              send_data_packet[4] = tmp_val % 100;
- 325   3              tmp_val /= 100;
- 326   3              send_data_packet[3] = tmp_val % 100;
- 327   3          }
- 328   2          break;
- 329   2          // ====================================================================
- 330   2          // 发送 发送小计里程， 数据 3 byte ， 数据直接用作屏幕显示，例如 0d 04 17 65 
-             -，显示 04176.5 mile
- 331   2          case SEND_SUBTOTAL_MILEAGE_TENTH_OF_MILE:
- 332   2          {
- 333   3              send_data_packet_len = 7; // 发送指令的总长度
- 334   3              send_data_packet[1] = send_data_packet_len;
- 335   3      
- 336   3              /*
- 337   3                  发送的数据直接用作屏幕显示，这里需要提前做好转换
- 338   3      
- 339   3                  1 km == 0.621371 mile
- 340   3                  1 / 0.621371 约为 1.6093444978925633800096882538773，
- 341   3                  这里取 1.61 作为转换系数
- 342   3                  1000 m / 161 ，得到 以 0.1 mile 为单位的数据
- 343   3              */
- 344   3              tmp_val = fun_info.save_info.subtotal_mileage / 161; // 得到 以 0.1 mile 为单位的数据
- 345   3              send_data_packet[5] = tmp_val % 100;
- 346   3              tmp_val /= 100;
- 347   3              send_data_packet[4] = tmp_val % 100;
- 348   3              tmp_val /= 100;
- 349   3              send_data_packet[3] = tmp_val % 100;
- 350   3          }
- 351   2          break;
- 352   2          // ====================================================================
- 353   2          /*
-C51 COMPILER V9.60.7.0   SEND_DATA                                                         12/05/2025 17:29:00 PAGE 7   
+ 296   2          break;
+ 297   2          // ====================================================================
+ 298   2          // 发送 电池电压
+ 299   2          case SEND_VOLTAGE_OF_BATTERY:
+ 300   2          {
+ 301   3              send_data_packet_len = 6; // 发送指令的总长度
+ 302   3              send_data_packet[1] = send_data_packet_len;
+ 303   3      
+ 304   3              send_data_packet[3] = fun_info.voltage_of_battery >> 8;
+ 305   3              send_data_packet[4] = fun_info.voltage_of_battery & 0xFF;
+ 306   3          }
+ 307   2          break;
+ 308   2          // ====================================================================
+ 309   2          // 发送 水温报警
+ 310   2          case SEND_TEMP_OF_WATER_ALERT:
+ 311   2          {
+ 312   3              send_data_packet_len = 5;
+ 313   3              send_data_packet[1] = send_data_packet_len;
+ 314   3              send_data_packet[3] = fun_info.flag_is_in_water_temp_warning;
+ 315   3          }
+ 316   2          break;
+ 317   2      
+ 318   2          // ====================================================================
+ 319   2          // 发送 故障状态
+ 320   2          case SEND_MALFUNCTION_STATUS:
+ 321   2          {
+ 322   3              send_data_packet_len = 5;
+ 323   3              send_data_packet[1] = send_data_packet_len;
+ 324   3              send_data_packet[3] = fun_info.flag_is_detect_malfunction;
+ 325   3          }
+ 326   2          break;
+ 327   2          // ====================================================================
+ 328   2          // 发送 发送小计里程， 数据 3 byte  
+ 329   2          case SEND_SUBTOTAL_MILEAGE_TENTH_OF_KM:
+ 330   2          {
+ 331   3              send_data_packet_len = 7; // 发送指令的总长度
+ 332   3              send_data_packet[1] = send_data_packet_len;
+ 333   3      
+ 334   3              /*
+ 335   3                  发送的数据直接用作屏幕显示，这里需要提前做好转换
+ 336   3              */
+ 337   3              tmp_val = fun_info.save_info.subtotal_mileage / 100; // 存放以百米为单位的数据
+ 338   3              send_data_packet[5] = (tmp_val % 100 / 10) | (tmp_val % 10) << 4;
+ 339   3              tmp_val /= 100;
+ 340   3              send_data_packet[4] = (tmp_val % 100 / 10) | (tmp_val % 10) << 4;
+ 341   3              tmp_val /= 100;
+ 342   3              send_data_packet[3] = (tmp_val % 100 / 10) | (tmp_val % 10) << 4;
+ 343   3          }
+ 344   2          break;
+ 345   2          // ====================================================================
+ 346   2          // 发送 发送小计里程， 数据 3 byte ，  
+ 347   2          case SEND_SUBTOTAL_MILEAGE_TENTH_OF_MILE:
+ 348   2          {
+ 349   3              send_data_packet_len = 7; // 发送指令的总长度
+ 350   3              send_data_packet[1] = send_data_packet_len;
+ 351   3      
+ 352   3              /*
+ 353   3                  发送的数据直接用作屏幕显示，这里需要提前做好转换
+ 354   3      
+ 355   3                  1 km == 0.621371 mile
+ 356   3                  1 / 0.621371 约为 1.6093444978925633800096882538773，
+ 357   3                  这里取 1.61 作为转换系数
+C51 COMPILER V9.60.7.0   SEND_DATA                                                         12/12/2025 16:07:28 PAGE 7   
 
- 354   2              发送 小计里程， 数据 2 byte ， 直接用作屏幕显示，
- 355   2              例如 0d 1765 ，显示 1765 km
- 356   2          */
- 357   2          case SEND_SUBTOTAL_MILEAGE_KM:
- 358   2          {
- 359   3              send_data_packet_len = 6;
- 360   3              send_data_packet[1] = send_data_packet_len;
- 361   3      
- 362   3              tmp_val = fun_info.save_info.subtotal_mileage / 1000; // 得到以 km 为单位的数据
- 363   3              send_data_packet[4] = tmp_val % 100;
+ 358   3                  1000 m / 161 ，得到 以 0.1 mile 为单位的数据
+ 359   3              */
+ 360   3              tmp_val = fun_info.save_info.subtotal_mileage / 161; // 得到 以 0.1 mile 为单位的数据
+ 361   3              send_data_packet[5] = (tmp_val % 100 / 10) | (tmp_val % 10) << 4;
+ 362   3              tmp_val /= 100;
+ 363   3              send_data_packet[4] = (tmp_val % 100 / 10) | (tmp_val % 10) << 4;
  364   3              tmp_val /= 100;
- 365   3              send_data_packet[3] = tmp_val % 100;
+ 365   3              send_data_packet[3] = (tmp_val % 100 / 10) | (tmp_val % 10) << 4;
  366   3          }
  367   2          break;
  368   2          // ====================================================================
  369   2          /*
  370   2              发送 小计里程， 数据 2 byte ， 直接用作屏幕显示，
- 371   2              例如 0d 1765 ，显示 1765 mile
+ 371   2       
  372   2          */
- 373   2          case SEND_SUBTOTAL_MILEAGE_MILE:
+ 373   2          case SEND_SUBTOTAL_MILEAGE_KM:
  374   2          {
  375   3              send_data_packet_len = 6;
  376   3              send_data_packet[1] = send_data_packet_len;
  377   3      
- 378   3              tmp_val = fun_info.save_info.subtotal_mileage / 1610; // 得到以 mile 为单位数据
+ 378   3              tmp_val = fun_info.save_info.subtotal_mileage / 1000; // 得到以 km 为单位的数据
  379   3              send_data_packet[4] = tmp_val % 100;
  380   3              tmp_val /= 100;
  381   3              send_data_packet[3] = tmp_val % 100;
  382   3          }
  383   2          break;
  384   2          // ====================================================================
- 385   2          // 发送 时速（单位：英里每小时 mile/h）
- 386   2          case SEND_SPEED_WITH_MILE:
- 387   2          {
- 388   3              tmp_val = fun_info.speed * 621 / 1000; // （单位：英里每小时 mile/h） 1km/h == 0.621427m
-             -ile/h
- 389   3              if (tmp_val > 255)
- 390   3              {
- 391   4                  tmp_val = 255; // 限制发送的时速
- 392   4              }
+ 385   2          /*
+ 386   2              发送 小计里程， 数据 2 byte ， 直接用作屏幕显示，
+ 387   2              例如 0d 1765 ，显示 1765 mile
+ 388   2          */
+ 389   2          case SEND_SUBTOTAL_MILEAGE_MILE:
+ 390   2          {
+ 391   3              send_data_packet_len = 6;
+ 392   3              send_data_packet[1] = send_data_packet_len;
  393   3      
- 394   3              send_data_packet_len = 5;
- 395   3              send_data_packet[1] = send_data_packet_len;
- 396   3      
- 397   3              send_data_packet[3] = (u8)(tmp_val & 0xFF);
+ 394   3              tmp_val = fun_info.save_info.subtotal_mileage / 1610; // 得到以 mile 为单位数据
+ 395   3              send_data_packet[4] = tmp_val % 100;
+ 396   3              tmp_val /= 100;
+ 397   3              send_data_packet[3] = tmp_val % 100;
  398   3          }
  399   2          break;
- 400   2      
- 401   2          default:
- 402   2              break;
- 403   2          }
- 404   1      
- 405   1          for (i = 0; i < send_data_packet_len; i++)
- 406   1          {
- 407   2              if (i == send_data_packet_len - 1)
- 408   2              {
- 409   3                  // 数据包的最后一个字节，存放校验和
- 410   3                  send_data_packet[i] = check_sum;
- 411   3              }
- 412   2              uart0_sendbyte(send_data_packet[i]);
- 413   2              check_sum += (u8)send_data_packet[i]; // 只用1个字节存放校验和，溢出的部分不用�
-             -�理
-C51 COMPILER V9.60.7.0   SEND_DATA                                                         12/05/2025 17:29:00 PAGE 8   
+ 400   2          // ====================================================================
+ 401   2          // 发送 时速（单位：英里每小时 mile/h）
+ 402   2          case SEND_SPEED_WITH_MILE:
+ 403   2          {
+ 404   3              tmp_val = fun_info.speed * 621 / 1000; // （单位：英里每小时 mile/h） 1km/h == 0.621427m
+             -ile/h
+ 405   3              if (tmp_val > 255)
+ 406   3              {
+ 407   4                  tmp_val = 255; // 限制发送的时速
+ 408   4              }
+ 409   3      
+ 410   3              send_data_packet_len = 5;
+ 411   3              send_data_packet[1] = send_data_packet_len;
+ 412   3      
+ 413   3              send_data_packet[3] = (u8)(tmp_val & 0xFF);
+ 414   3          }
+ 415   2          break;
+ 416   2      
+ 417   2          default:
+ 418   2              break;
+C51 COMPILER V9.60.7.0   SEND_DATA                                                         12/12/2025 16:07:28 PAGE 8   
 
- 414   2          }
- 415   1      
- 416   1          delay_ms(1);
- 417   1      }
+ 419   2          }
+ 420   1      
+ 421   1          for (i = 0; i < send_data_packet_len; i++)
+ 422   1          {
+ 423   2              if (i == send_data_packet_len - 1)
+ 424   2              {
+ 425   3                  // 数据包的最后一个字节，存放校验和
+ 426   3                  send_data_packet[i] = check_sum;
+ 427   3              }
+ 428   2              uart0_sendbyte(send_data_packet[i]);
+ 429   2              check_sum += (u8)send_data_packet[i]; // 只用1个字节存放校验和，溢出的部分不用�
+             -�理
+ 430   2          }
+ 431   1      
+ 432   1          delay_ms(1);
+ 433   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    679    ----
+   CODE SIZE        =    823    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =     20       7
    PDATA SIZE       =   ----    ----

@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   KEY_DRIVER                                                        12/05/2025 17:28:59 PAGE 1   
+C51 COMPILER V9.60.7.0   KEY_DRIVER                                                        12/12/2025 11:46:24 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE KEY_DRIVER
@@ -62,7 +62,7 @@ line level    source
               
                   // 判断按键是否有效
                   if (cur_key_value != NO_KEY)
-C51 COMPILER V9.60.7.0   KEY_DRIVER                                                        12/05/2025 17:28:59 PAGE 2   
+C51 COMPILER V9.60.7.0   KEY_DRIVER                                                        12/12/2025 11:46:24 PAGE 2   
 
                   {
                       is_key_active = 35; // 35*10Ms
@@ -126,7 +126,7 @@ line level    source
                           cur_key = NO_KEY; last_key = valid_key -> 按键被抬起
                       */
                       // printf("key event up\n");
-C51 COMPILER V9.60.7.0   KEY_DRIVER                                                        12/05/2025 17:28:59 PAGE 3   
+C51 COMPILER V9.60.7.0   KEY_DRIVER                                                        12/12/2025 11:46:24 PAGE 3   
 
               
                       if (cur_key_value == NO_KEY)
@@ -190,7 +190,7 @@ line level    source
                                   // if (scan_para->click_cnt >= 5)
                                   // {
                                   //     key_event = KEY_EVENT_FIRTH_CLICK; // 五击
-C51 COMPILER V9.60.7.0   KEY_DRIVER                                                        12/05/2025 17:28:59 PAGE 4   
+C51 COMPILER V9.60.7.0   KEY_DRIVER                                                        12/12/2025 11:46:24 PAGE 4   
 
                                   // }
                                   // else if (scan_para->click_cnt >= 4)
@@ -254,7 +254,7 @@ line level    source
              -��入到这里
                               // printf("key event hold\n");
                           }
-C51 COMPILER V9.60.7.0   KEY_DRIVER                                                        12/05/2025 17:28:59 PAGE 5   
+C51 COMPILER V9.60.7.0   KEY_DRIVER                                                        12/12/2025 11:46:24 PAGE 5   
 
                           else
                           {

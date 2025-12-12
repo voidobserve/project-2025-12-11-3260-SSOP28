@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   UART0                                                             12/05/2025 17:28:59 PAGE 1   
+C51 COMPILER V9.60.7.0   UART0                                                             12/12/2025 11:46:24 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE UART0
@@ -62,7 +62,7 @@ line level    source
               #endif // 将uart0用作串口打印
               #endif // #if USE_MY_DEBUG
   45          
-C51 COMPILER V9.60.7.0   UART0                                                             12/05/2025 17:28:59 PAGE 2   
+C51 COMPILER V9.60.7.0   UART0                                                             12/12/2025 11:46:24 PAGE 2   
 
   46          static void uart0_receive_timeout_enable(void)
   47          {
@@ -126,7 +126,7 @@ line level    source
  105   1          __IRQnIPnPush(UART0_IRQn);
  106   1          // P20 = 1; // 测试中断持续时间
  107   1      
-C51 COMPILER V9.60.7.0   UART0                                                             12/05/2025 17:28:59 PAGE 3   
+C51 COMPILER V9.60.7.0   UART0                                                             12/12/2025 11:46:24 PAGE 3   
 
  108   1          // ---------------- 用户函数处理 -------------------
  109   1          // RX接收完成中断
@@ -190,7 +190,7 @@ line level    source
  165   3                  {
  166   4                      // 如果接收完了一帧数据
  167   4                      uart0_recv_len[blank_index] = frame_len; // 更新当前数据帧的长度
-C51 COMPILER V9.60.7.0   UART0                                                             12/05/2025 17:28:59 PAGE 4   
+C51 COMPILER V9.60.7.0   UART0                                                             12/12/2025 11:46:24 PAGE 4   
 
  168   4                      // printf("frame_len %d\n", (int32)frame_len);
  169   4                      flag_is_recving_data = 0; // 标志位清零，准备接收下一帧数据
@@ -254,7 +254,7 @@ line level    source
  225          
  226          // UART0发送一个字节数据的函数
  227          void uart0_sendbyte(u8 senddata)
-C51 COMPILER V9.60.7.0   UART0                                                             12/05/2025 17:28:59 PAGE 5   
+C51 COMPILER V9.60.7.0   UART0                                                             12/12/2025 11:46:24 PAGE 5   
 
  228          {
  229   1          while (!(UART0_STA & UART_TX_DONE(0x01)))
@@ -318,7 +318,7 @@ line level    source
  284   1          //             {
  285   1          //                 printf("buff_index %bu ", i);
  286   1          //                 for (j = 0; j < FRAME_MAX_LEN; j++)
-C51 COMPILER V9.60.7.0   UART0                                                             12/05/2025 17:28:59 PAGE 6   
+C51 COMPILER V9.60.7.0   UART0                                                             12/12/2025 11:46:24 PAGE 6   
 
  287   1          //                 {
  288   1          //                     printf("%bx ", uart0_recv_buf[i][j]);
@@ -382,7 +382,7 @@ line level    source
  346   4                      // checksum &= 0x0F; // 取低4位作为校验
  347   4                      checksum &= 0xFF; // 取8位作为校验
  348   4                      if (checksum != (uart0_recv_buf[i][uart0_recv_len[i] - 1]))
-C51 COMPILER V9.60.7.0   UART0                                                             12/05/2025 17:28:59 PAGE 7   
+C51 COMPILER V9.60.7.0   UART0                                                             12/12/2025 11:46:24 PAGE 7   
 
  349   4                      {
  350   5                          // 如果计算的校验和与收到的校验和不一致
@@ -446,7 +446,7 @@ line level    source
               //     u8 i = 0;
               
               //     u8 k = 0;
-C51 COMPILER V9.60.7.0   UART0                                                             12/05/2025 17:28:59 PAGE 8   
+C51 COMPILER V9.60.7.0   UART0                                                             12/12/2025 11:46:24 PAGE 8   
 
               //     // if (test_bit)
               //     // {
@@ -510,7 +510,7 @@ line level    source
                               // 如果是六个字节的数据
                               checksum = (uart0_recv_buf[i][0] + uart0_recv_buf[i][1] + uart0_recv_buf[i][2] + uart0_rec
              -v_buf[i][3] + uart0_recv_buf[i][4]) & 0x0F;
-C51 COMPILER V9.60.7.0   UART0                                                             12/05/2025 17:28:59 PAGE 9   
+C51 COMPILER V9.60.7.0   UART0                                                             12/12/2025 11:46:24 PAGE 9   
 
               
                               if (checksum != uart0_recv_buf[i][5])
@@ -574,7 +574,7 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
-C51 COMPILER V9.60.7.0   UART0                                                             12/05/2025 17:28:59 PAGE 10  
+C51 COMPILER V9.60.7.0   UART0                                                             12/12/2025 11:46:24 PAGE 10  
 
    BIT SIZE         =      3       1
 END OF MODULE INFORMATION.

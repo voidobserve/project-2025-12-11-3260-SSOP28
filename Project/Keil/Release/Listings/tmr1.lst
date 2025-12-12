@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   TMR1                                                              12/05/2025 17:28:58 PAGE 1   
+C51 COMPILER V9.60.7.0   TMR1                                                              12/12/2025 11:46:24 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE TMR1
@@ -62,7 +62,7 @@ line level    source
   50   1          __IRQnIPnPush(TMR1_IRQn);
   51   1      
   52   1          // ---------------- 用户函数处理 -------------------
-C51 COMPILER V9.60.7.0   TMR1                                                              12/05/2025 17:28:58 PAGE 2   
+C51 COMPILER V9.60.7.0   TMR1                                                              12/12/2025 11:46:24 PAGE 2   
 
   53   1      
   54   1          // 周期中断
@@ -126,7 +126,7 @@ line level    source
  112   3                  {
  113   4                      // 如果接收同步请求已经过了 xx s，清除冷却状态
  114   4                      synchronous_request_time_cnt = 0;
-C51 COMPILER V9.60.7.0   TMR1                                                              12/05/2025 17:28:58 PAGE 3   
+C51 COMPILER V9.60.7.0   TMR1                                                              12/12/2025 11:46:24 PAGE 3   
 
  115   4                      synchronous_request_status = SYN_REQUEST_STATUS_NONE;
  116   4                  }
@@ -190,7 +190,7 @@ line level    source
  174   2              //     static u16 cnt;
  175   2              //     cnt++;
  176   2              //     if (cnt >= 4000)
-C51 COMPILER V9.60.7.0   TMR1                                                              12/05/2025 17:28:58 PAGE 4   
+C51 COMPILER V9.60.7.0   TMR1                                                              12/12/2025 11:46:24 PAGE 4   
 
  177   2              //     {
  178   2              //         cnt = 0;

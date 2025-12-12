@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   ENGINE_SPEED_SCAN                                                 12/05/2025 17:29:00 PAGE 1   
+C51 COMPILER V9.60.7.0   ENGINE_SPEED_SCAN                                                 12/12/2025 11:46:25 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE ENGINE_SPEED_SCAN
@@ -62,7 +62,7 @@ line level    source
              -�圈对应的脉冲个数) / 扫描时间
   50   3                      转换成单片机能计算的形式：
   51   3                      1min转过的圈数 == 扫描时间内采集到的脉冲个数 * 1min / 发动机转过一
-C51 COMPILER V9.60.7.0   ENGINE_SPEED_SCAN                                                 12/05/2025 17:29:00 PAGE 2   
+C51 COMPILER V9.60.7.0   ENGINE_SPEED_SCAN                                                 12/12/2025 11:46:25 PAGE 2   
 
              -圈对应的脉冲个数 / 扫描时间
   52   3                      1min转过的圈数 == 扫描时间内采集到的脉冲个数 * 1min / 扫描时间 / 发
@@ -126,7 +126,7 @@ line level    source
                   else if (engine_speed < last_engine_speed)
                   {
                       // 如果当前的发动机转速 小于 上一次采集到的发动机转速
-C51 COMPILER V9.60.7.0   ENGINE_SPEED_SCAN                                                 12/05/2025 17:29:00 PAGE 3   
+C51 COMPILER V9.60.7.0   ENGINE_SPEED_SCAN                                                 12/12/2025 11:46:25 PAGE 3   
 
                       engine_speed_difference = last_engine_speed - engine_speed;
                       dir_of_engine_speed_change = 0; // 表示发动机转速变小
@@ -190,7 +190,7 @@ line level    source
               
                       fun_info.engine_speeed = engine_speed_buff[cur_send_engine_speed_buff_index];
                       cur_send_engine_speed_buff_index++;
-C51 COMPILER V9.60.7.0   ENGINE_SPEED_SCAN                                                 12/05/2025 17:29:00 PAGE 4   
+C51 COMPILER V9.60.7.0   ENGINE_SPEED_SCAN                                                 12/12/2025 11:46:25 PAGE 4   
 
               
                       // printf("fun_info.engine_speed = %lu\n", fun_info.engine_speeed);

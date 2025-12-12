@@ -6,11 +6,13 @@
 
 #if PIN_LEVEL_SCAN_ENABLE
 
-#define PIN_DETECT_LEFT_TURN (P25)   // 检测左转向灯的引脚
-#define PIN_DETECT_RIGHT_TURN (P22)  // 检测右转向灯的引脚
-#define PIN_DETECT_HIGH_BEAM (P21)   // 检测远光灯的引脚
-#define PIN_DETECT_BRAKE (P23)       // 检测刹车的引脚
-#define PIN_DETECT_MALFUNCTION (P20) // 检测故障的引脚
+#define PIN_DETECT_LEFT_TURN (P25)  // 检测左转向灯的引脚
+#define PIN_DETECT_RIGHT_TURN (P22) // 检测右转向灯的引脚
+// #define PIN_DETECT_HIGH_BEAM (P21)   // 检测远光灯的引脚
+#define PIN_DETECT_BRAKE (P23) // 检测刹车的引脚
+
+#define PIN_DETECT_TEMP_OF_WATER_ALERT (P20)
+#define PIN_DETECT_MALFUNCTION (P21) // 检测故障的引脚
 
 #define PIN_DETECT_NEUTRAL_GEAR (P06) // 检测空挡的引脚
 #define PIN_DETECT_FIRST_GEAR (P07)   // 检测一挡的引脚

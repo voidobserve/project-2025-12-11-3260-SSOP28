@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   FUEL_CAPACITY                                                     12/05/2025 17:29:00 PAGE 1   
+C51 COMPILER V9.60.7.0   FUEL_CAPACITY                                                     12/12/2025 11:46:26 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE FUEL_CAPACITY
@@ -62,7 +62,7 @@ line level    source
              -VAL) / 3))
                       {
                           fuel_percent = 80;
-C51 COMPILER V9.60.7.0   FUEL_CAPACITY                                                     12/05/2025 17:29:00 PAGE 2   
+C51 COMPILER V9.60.7.0   FUEL_CAPACITY                                                     12/12/2025 11:46:26 PAGE 2   
 
                       }
                       else if (fuel_adc_val < (FUEL_70_PERCENT_ADC_VAL - (FUEL_70_PERCENT_ADC_VAL - FUEL_80_PERCENT_ADC_
@@ -126,7 +126,7 @@ line level    source
                           fuel_percent = 10;
                       }
                       else if (fuel_adc_val < (FUEL_20_PERCENT_ADC_VAL + (FUEL_10_PERCENT_ADC_VAL - FUEL_20_PERCENT_ADC_
-C51 COMPILER V9.60.7.0   FUEL_CAPACITY                                                     12/05/2025 17:29:00 PAGE 3   
+C51 COMPILER V9.60.7.0   FUEL_CAPACITY                                                     12/12/2025 11:46:26 PAGE 3   
 
              -VAL) / 3) &&
                                fuel_adc_val > FUEL_20_PERCENT_ADC_VAL - (FUEL_20_PERCENT_ADC_VAL - FUEL_30_PERCENT_ADC_V
@@ -190,7 +190,7 @@ line level    source
              -)
                       {
                           // 90%油量
-C51 COMPILER V9.60.7.0   FUEL_CAPACITY                                                     12/05/2025 17:29:00 PAGE 4   
+C51 COMPILER V9.60.7.0   FUEL_CAPACITY                                                     12/12/2025 11:46:26 PAGE 4   
 
                           fuel_percent = 90;
                       }
@@ -254,7 +254,7 @@ line level    source
  210   1      #if 0
                   u8 ret = 0;
               
-C51 COMPILER V9.60.7.0   FUEL_CAPACITY                                                     12/05/2025 17:29:00 PAGE 5   
+C51 COMPILER V9.60.7.0   FUEL_CAPACITY                                                     12/12/2025 11:46:26 PAGE 5   
 
                   // 如果超出了 最大油量的ad值和最小油量的ad值之间的范围 ，说明没有接油量
              -检测
@@ -318,7 +318,7 @@ line level    source
  265   2              {
  266   3                  ret = 100;
  267   3              }
-C51 COMPILER V9.60.7.0   FUEL_CAPACITY                                                     12/05/2025 17:29:00 PAGE 6   
+C51 COMPILER V9.60.7.0   FUEL_CAPACITY                                                     12/12/2025 11:46:26 PAGE 6   
 
  268   2              else if (fuel_adc_val <= FUEL_LEVEL_0_ADC_VAL && fuel_adc_val > FUEL_LEVEL_1_ADC_VAL) /* 0格油�
              -�到1格油量，0% ~ 18% */
@@ -382,7 +382,7 @@ line level    source
  315   3                  ret = ((u32)fuel_adc_val - FUEL_LEVEL_6_ADC_VAL) * 100 / ((u32)FUEL_LEVEL_5_ADC_VAL - FUEL_LEV
              -EL_6_ADC_VAL);
  316   3                  ret = 100 - ret;
-C51 COMPILER V9.60.7.0   FUEL_CAPACITY                                                     12/05/2025 17:29:00 PAGE 7   
+C51 COMPILER V9.60.7.0   FUEL_CAPACITY                                                     12/12/2025 11:46:26 PAGE 7   
 
  317   3                  if (ret < 84)
  318   3                  {
@@ -446,7 +446,7 @@ line level    source
  376   4                      // fuel_adc_scan_cnt = 0;
  377   4                      fuel_adc_val = 0;
  378   4                      flag_get_fuel = 1;
-C51 COMPILER V9.60.7.0   FUEL_CAPACITY                                                     12/05/2025 17:29:00 PAGE 8   
+C51 COMPILER V9.60.7.0   FUEL_CAPACITY                                                     12/12/2025 11:46:26 PAGE 8   
 
  379   4      
  380   4                      status = STATUS_IN_SERVICE;

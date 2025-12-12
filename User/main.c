@@ -95,7 +95,7 @@ void main(void)
     P23 = 1;
     delay_ms(1000);
     P23 = 0;
-  
+
     /* 系统主循环 */
     while (1)
     {
@@ -125,7 +125,8 @@ void main(void)
 #if SPEED_SCAN_ENABLE
 
         speed_scan(); // 检测时速
-#endif                // #if SPEED_SCAN_ENABLE
+
+#endif // #if SPEED_SCAN_ENABLE
 
 #if ENGINE_SPEED_SCAN_ENABLE
         engine_speed_scan(); // 检测发动机转速
@@ -158,6 +159,53 @@ void main(void)
         // send_data_packet(SEND_TOTAL_MILEAGE_TENTH_OF_KM);
         // send_data_packet(SEND_TOTAL_MILEAGE_TENTH_OF_MILE);
 
+        // {
+        //     static u16 cnt = 0;
+        //     static u8 dir = 0;
+
+        //     cnt++;
+        //     if (cnt >= 100)
+        //     // if (cnt >= 10)
+        //     {
+        //         cnt = 0;
+        //         // fun_info.left_turn = dir;
+        //         // fun_info.right_turn = dir;
+        //         dir = !dir;
+        //         // send_data_packet(SEND_LEFT_TURN);
+        //         // send_data_packet(SEND_RIGHT_TURN);
+
+        //         // if (0 == dir)
+        //         // {
+        //         //     fun_info.gear = GEAR_FIFTH;
+        //         // }
+        //         // else
+        //         // {
+        //         //     fun_info.gear = GEAR_SECOND;
+        //         // }
+
+        //         {
+        //             static u8 i = 0;
+        //             i++;
+        //             if (i >= 100)
+        //             {
+        //                 i = 0;
+        //             }
+
+        //             // fun_info.left_turn = 0;
+        //             // send_data_packet(SEND_LEFT_TURN);
+
+        //             fun_info.save_info.total_mileage = (u32)89432 * 1000;
+        //             // fun_info.aip1302_saveinfo.time_hour = 16;
+        //             // fun_info.aip1302_saveinfo.time_min = 59;
+        //             // fun_info.aip1302_saveinfo.time_sec = 34;
+        //             // fun_info.flag_is_in_water_temp_warning = dir;
+        //             // fun_info.flag_is_detect_malfunction = dir;
+
+        //             // fun_info.save_info.subtotal_mileage = (u32)123456 * 100;
+        //             send_data_packet(SEND_TOTAL_MILEAGE_TENTH_OF_KM);
+        //         }
+        //     }
+        // }
 
         // WDT_KEY = WDT_KEY_VAL(0xAA); // 喂狗并清除 wdt_pending
     }

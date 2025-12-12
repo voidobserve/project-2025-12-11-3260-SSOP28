@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   TEMP_OF_WATER                                                     12/05/2025 17:29:01 PAGE 1   
+C51 COMPILER V9.60.7.0   TEMP_OF_WATER                                                     12/12/2025 11:46:26 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE TEMP_OF_WATER
@@ -62,7 +62,7 @@ line level    source
                   {
                       // 有一次没有检测到水温过热，清除水温过热计数
                       over_heat_accumulate_cnt = 0;
-C51 COMPILER V9.60.7.0   TEMP_OF_WATER                                                     12/05/2025 17:29:01 PAGE 2   
+C51 COMPILER V9.60.7.0   TEMP_OF_WATER                                                     12/12/2025 11:46:26 PAGE 2   
 
                   }
               

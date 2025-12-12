@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   MILEAGE                                                           12/05/2025 17:29:00 PAGE 1   
+C51 COMPILER V9.60.7.0   MILEAGE                                                           12/12/2025 11:46:25 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MILEAGE
@@ -62,7 +62,7 @@ line level    source
   46   2      
   47   2              if (fun_info.save_info.subtotal_mileage < (u32)(9999999)) // 9999.9KM， 9999 999 m
   48   2              {
-C51 COMPILER V9.60.7.0   MILEAGE                                                           12/05/2025 17:29:00 PAGE 2   
+C51 COMPILER V9.60.7.0   MILEAGE                                                           12/12/2025 11:46:25 PAGE 2   
 
   49   3                  fun_info.save_info.subtotal_mileage++; // +1m
   50   3              }
@@ -126,7 +126,7 @@ line level    source
  107   2              mileage_update_time_cnt = 0;
  108   2              flag_get_total_mileage = 1; //
  109   2              flag_get_sub_total_mileage = 1;
-C51 COMPILER V9.60.7.0   MILEAGE                                                           12/05/2025 17:29:00 PAGE 3   
+C51 COMPILER V9.60.7.0   MILEAGE                                                           12/12/2025 11:46:25 PAGE 3   
 
  110   2              flag_get_sub_total_mileage_2 = 1;
  111   2          }

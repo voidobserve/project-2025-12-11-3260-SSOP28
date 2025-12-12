@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   ADC                                                               12/05/2025 17:28:59 PAGE 1   
+C51 COMPILER V9.60.7.0   ADC                                                               12/12/2025 11:46:24 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE ADC
@@ -62,7 +62,7 @@ line level    source
   47   1      }
   48          
   49          // 切换adc扫描的引脚
-C51 COMPILER V9.60.7.0   ADC                                                               12/05/2025 17:28:59 PAGE 2   
+C51 COMPILER V9.60.7.0   ADC                                                               12/12/2025 11:46:24 PAGE 2   
 
   50          // adc_pin--adc引脚，在对应的枚举类型中定义
   51          void adc_sel_pin(u8 adc_pin)
@@ -126,7 +126,7 @@ line level    source
   97   1          ADC_CFG0 |= ADC_CHAN0_EN(0x1) | // 使能通道0转换
   98   1                      ADC_EN(0x1);        // 使能A/D转换
   99   1      
-C51 COMPILER V9.60.7.0   ADC                                                               12/05/2025 17:28:59 PAGE 3   
+C51 COMPILER V9.60.7.0   ADC                                                               12/12/2025 11:46:24 PAGE 3   
 
  100   1          delay_ms(1); // 等待ADC模块配置稳定，需要等待20us以上
  101   1      }

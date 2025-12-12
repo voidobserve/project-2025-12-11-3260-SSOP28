@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   MAIN                                                              12/05/2025 17:28:59 PAGE 1   
+C51 COMPILER V9.60.7.0   MAIN                                                              12/12/2025 16:07:27 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
@@ -62,7 +62,7 @@ line level    source
   51   1      #if (BATTERY_SCAN_ENABLE || AD_KEY_ENABLE || FUEL_CAPACITY_SCAN_ENABLE || TEMP_OF_WATER_SCAN_ENABLE)
   52   1          adc_config();
   53   1      #endif
-C51 COMPILER V9.60.7.0   MAIN                                                              12/05/2025 17:28:59 PAGE 2   
+C51 COMPILER V9.60.7.0   MAIN                                                              12/12/2025 16:07:27 PAGE 2   
 
   54   1      
   55   1      #if TOUCH_KEY_ENABLE
@@ -110,7 +110,7 @@ line level    source
   95   1          P23 = 1;
   96   1          delay_ms(1000);
   97   1          P23 = 0;
-  98   1        
+  98   1      
   99   1          /* 系统主循环 */
  100   1          while (1)
  101   1          {
@@ -126,7 +126,7 @@ line level    source
               #endif
  112   2      
  113   2      #if AD_KEY_ENABLE
-C51 COMPILER V9.60.7.0   MAIN                                                              12/05/2025 17:28:59 PAGE 3   
+C51 COMPILER V9.60.7.0   MAIN                                                              12/12/2025 16:07:27 PAGE 3   
 
                       key_driver_scan(&ad_key_para);
                       ad_key_handle(); // ad按键处理函数
@@ -142,56 +142,104 @@ line level    source
  125   2      #if SPEED_SCAN_ENABLE
  126   2      
  127   2              speed_scan(); // 检测时速
- 128   2      #endif                // #if SPEED_SCAN_ENABLE
- 129   2      
- 130   2      #if ENGINE_SPEED_SCAN_ENABLE
- 131   2              engine_speed_scan(); // 检测发动机转速
- 132   2      #endif                       // #if ENGINE_SPEED_SCAN_ENABLE
- 133   2              mileage_scan();      // 检测大计里程和小计里程
- 134   2      
- 135   2      #if FUEL_CAPACITY_SCAN_ENABLE
- 136   2              fuel_capacity_scan(); // 油量检测
- 137   2      #endif                        // FUEL_CAPACITY_SCAN_ENABLE
- 138   2      #if BATTERY_SCAN_ENABLE
- 139   2              battery_scan(); // 电池电量检测
- 140   2      #endif                  // BATTERY_SCAN_ENABLE
- 141   2      
- 142   2      #if 1
- 143   2              uart0_scan_handle();  // 检查串口接收缓冲区的数据是否符合协议,如果有正确的
+ 128   2      
+ 129   2      #endif // #if SPEED_SCAN_ENABLE
+ 130   2      
+ 131   2      #if ENGINE_SPEED_SCAN_ENABLE
+ 132   2              engine_speed_scan(); // 检测发动机转速
+ 133   2      #endif                       // #if ENGINE_SPEED_SCAN_ENABLE
+ 134   2              mileage_scan();      // 检测大计里程和小计里程
+ 135   2      
+ 136   2      #if FUEL_CAPACITY_SCAN_ENABLE
+ 137   2              fuel_capacity_scan(); // 油量检测
+ 138   2      #endif                        // FUEL_CAPACITY_SCAN_ENABLE
+ 139   2      #if BATTERY_SCAN_ENABLE
+ 140   2              battery_scan(); // 电池电量检测
+ 141   2      #endif                  // BATTERY_SCAN_ENABLE
+ 142   2      
+ 143   2      #if 1
+ 144   2              uart0_scan_handle();  // 检查串口接收缓冲区的数据是否符合协议,如果有正确的
              -指令，会存到另一个缓冲区中（接下来让instruction_scan()函数来处理）
- 144   2              instruction_scan();   // 扫描是否有合法的指令
- 145   2              instruction_handle(); // 扫描是否有对应的获取/状态更新操作(最占用时间,因为�
+ 145   2              instruction_scan();   // 扫描是否有合法的指令
+ 146   2              instruction_handle(); // 扫描是否有对应的获取/状态更新操作(最占用时间,因为�
              -��等待串口的数据发送完成)
- 146   2      #endif
- 147   2      
- 148   2              // DEBUG:
- 149   2              // if (flag_debug_is_send_time)
- 150   2              // {
- 151   2              //     eeprom_printf_all();
- 152   2              //     flag_debug_is_send_time = 0;
- 153   2              // }
- 154   2      
- 155   2      #endif //
- 156   2      
- 157   2              // fun_info.save_info.total_mileage = (u32)417650;
- 158   2              // send_data_packet(SEND_TOTAL_MILEAGE_TENTH_OF_KM);
- 159   2              // send_data_packet(SEND_TOTAL_MILEAGE_TENTH_OF_MILE);
- 160   2      
+ 147   2      #endif
+ 148   2      
+ 149   2              // DEBUG:
+ 150   2              // if (flag_debug_is_send_time)
+ 151   2              // {
+ 152   2              //     eeprom_printf_all();
+ 153   2              //     flag_debug_is_send_time = 0;
+ 154   2              // }
+ 155   2      
+ 156   2      #endif //
+ 157   2      
+ 158   2              // fun_info.save_info.total_mileage = (u32)417650;
+ 159   2              // send_data_packet(SEND_TOTAL_MILEAGE_TENTH_OF_KM);
+ 160   2              // send_data_packet(SEND_TOTAL_MILEAGE_TENTH_OF_MILE);
  161   2      
- 162   2              // WDT_KEY = WDT_KEY_VAL(0xAA); // 喂狗并清除 wdt_pending
- 163   2          }
- 164   1      }
- 165          
- 166          /**
- 167           * @}
- 168           */
- 169          
- 170          /*************************** (C) COPYRIGHT 2022 HUGE-IC ***** END OF FILE *****/
+ 162   2              // {
+ 163   2              //     static u16 cnt = 0;
+ 164   2              //     static u8 dir = 0;
+ 165   2      
+ 166   2              //     cnt++;
+ 167   2              //     if (cnt >= 100)
+ 168   2              //     // if (cnt >= 10)
+ 169   2              //     {
+ 170   2              //         cnt = 0;
+ 171   2              //         // fun_info.left_turn = dir;
+ 172   2              //         // fun_info.right_turn = dir;
+ 173   2              //         dir = !dir;
+C51 COMPILER V9.60.7.0   MAIN                                                              12/12/2025 16:07:27 PAGE 4   
+
+ 174   2              //         // send_data_packet(SEND_LEFT_TURN);
+ 175   2              //         // send_data_packet(SEND_RIGHT_TURN);
+ 176   2      
+ 177   2              //         // if (0 == dir)
+ 178   2              //         // {
+ 179   2              //         //     fun_info.gear = GEAR_FIFTH;
+ 180   2              //         // }
+ 181   2              //         // else
+ 182   2              //         // {
+ 183   2              //         //     fun_info.gear = GEAR_SECOND;
+ 184   2              //         // }
+ 185   2      
+ 186   2              //         {
+ 187   2              //             static u8 i = 0;
+ 188   2              //             i++;
+ 189   2              //             if (i >= 100)
+ 190   2              //             {
+ 191   2              //                 i = 0;
+ 192   2              //             }
+ 193   2      
+ 194   2              //             // fun_info.left_turn = 0;
+ 195   2              //             // send_data_packet(SEND_LEFT_TURN);
+ 196   2      
+ 197   2              //             fun_info.save_info.total_mileage = (u32)89432 * 1000;
+ 198   2              //             // fun_info.aip1302_saveinfo.time_hour = 16;
+ 199   2              //             // fun_info.aip1302_saveinfo.time_min = 59;
+ 200   2              //             // fun_info.aip1302_saveinfo.time_sec = 34;
+ 201   2              //             // fun_info.flag_is_in_water_temp_warning = dir;
+ 202   2              //             // fun_info.flag_is_detect_malfunction = dir;
+ 203   2      
+ 204   2              //             // fun_info.save_info.subtotal_mileage = (u32)123456 * 100;
+ 205   2              //             send_data_packet(SEND_TOTAL_MILEAGE_TENTH_OF_KM);
+ 206   2              //         }
+ 207   2              //     }
+ 208   2              // }
+ 209   2      
+ 210   2              // WDT_KEY = WDT_KEY_VAL(0xAA); // 喂狗并清除 wdt_pending
+ 211   2          }
+ 212   1      }
+ 213          
+ 214          /**
+ 215           * @}
+ 216           */
+ 217          
+ 218          /*************************** (C) COPYRIGHT 2022 HUGE-IC ***** END OF FILE *****/
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-C51 COMPILER V9.60.7.0   MAIN                                                              12/05/2025 17:28:59 PAGE 4   
-
    CODE SIZE        =    111    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
