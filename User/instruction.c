@@ -10,14 +10,14 @@ volatile bit flag_get_battery;    // 获取电池状态 / 得到了电池的状�
 // volatile bit flag_get_brake;        // 获取刹车状态 / 得到了刹车的状态
 volatile bit flag_get_left_turn;  // 获取左转向灯的状态 / 得到了左转向灯的状态
 volatile bit flag_get_right_turn; // 获取右转向灯的状态 / 得到了右转向灯的状态
-// volatile bit flag_get_high_beam;    // 获取远光灯的状态 / 得到了远光灯的状态
+volatile bit flag_get_high_beam;    // 获取远光灯的状态 / 得到了远光灯的状态
 volatile bit flag_get_engine_speed; // 获取发动机的转速 / 得到了发动机的转速
 volatile bit flag_get_speed;        // 获取时速 / 得到了时速
 volatile bit flag_get_fuel;         // 获取油量 / 得到了油量（单位：百分比）
 #if TEMP_OF_WATER_SCAN_ENABLE
 // volatile bit flag_get_temp_of_water = 0; // 获取水温 / 得到了水温
 #endif
-volatile bit flag_update_malfunction_status; // 标志位，更新故障状态
+// volatile bit flag_update_malfunction_status; // 标志位，更新故障状态
 volatile bit flag_update_abs_status;         // 标志位，更新abs的状态
 
 volatile bit flag_get_total_mileage;       // 获取大计里程 / 得到了大计里程(数据需要更新)
@@ -262,14 +262,14 @@ void instruction_handle(void)
         send_data_packet(SEND_FUEL);
     }
 
-    if (flag_update_malfunction_status) // 更新故障的状态
-    {
-        flag_update_malfunction_status = 0;
-        send_data_packet(SEND_MALFUNCTION_STATUS);
+    // if (flag_update_malfunction_status) // 更新故障的状态
+    // {
+    //     flag_update_malfunction_status = 0;
+    //     send_data_packet(SEND_MALFUNCTION_STATUS);
 
-        // 没有引脚检测ABS，那么检测到故障之后，也发送ABS的状态
-        // send_data_packet(SEND_ABS_STATUS);
-    }
+    //     // 没有引脚检测ABS，那么检测到故障之后，也发送ABS的状态
+    //     // send_data_packet(SEND_ABS_STATUS);
+    // }
 
     if (flag_get_total_mileage) // 如果要获取大计里程 / 得到了大计里程新的数据
     {
@@ -390,5 +390,11 @@ void instruction_handle(void)
         fun_info.save_info.subtotal_mileage_2 = 0;
         distance = 0;
         fun_info_save(); // 将信息写回flash
+    }
+
+    if (flag_get_high_beam)
+    {
+        flag_get_high_beam = 0;
+        send_data_packet(SEND_HIGH_BEAM);
     }
 }

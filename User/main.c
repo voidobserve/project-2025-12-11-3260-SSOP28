@@ -71,7 +71,7 @@ void user_init(void)
 
     // delay_ms(10); // 等待系统稳定
     delay_ms(1); // 等待系统稳定
-    // delay_ms(2000); // 等待系统稳定
+                 // delay_ms(2000); // 等待系统稳定
 }
 
 void main(void)

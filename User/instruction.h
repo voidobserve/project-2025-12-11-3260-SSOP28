@@ -66,7 +66,7 @@ extern volatile bit flag_get_battery;      // 获取电池电量的状态/ 得�
 // extern volatile bit flag_get_brake;        // 获取刹车状态 / 得到了刹车的状态
 extern volatile bit flag_get_left_turn;    // 获取左转向灯的状态 / 得到了左转向灯的状态
 extern volatile bit flag_get_right_turn;   // 获取右转向灯的状态 / 得到了右转向灯的状态
-// extern volatile bit flag_get_high_beam;    // 获取远光灯的状态 / 得到了远光灯的状态
+extern volatile bit flag_get_high_beam;    // 获取远光灯的状态 / 得到了远光灯的状态
 extern volatile bit flag_get_engine_speed; // 获取发动机的转速 / 得到了发动机的转速
 extern volatile bit flag_get_speed;        // 获取时速 / 得到了时速
 extern volatile bit flag_get_fuel;         // 获取油量 / 得到了油量（单位：百分比）
@@ -74,7 +74,7 @@ extern volatile bit flag_get_fuel;         // 获取油量 / 得到了油量（�
 // extern volatile bit flag_get_temp_of_water; // 获取水温 / 得到了水温
 #endif
 
-extern volatile bit flag_update_malfunction_status; // 标志位，更新故障的状态
+// extern volatile bit flag_update_malfunction_status; // 标志位，更新故障的状态
 extern volatile bit flag_update_abs_status;         // 标志位，更新abs的状态
 
 extern volatile bit flag_get_total_mileage;       // 获取大计里程 / 得到了大计里程

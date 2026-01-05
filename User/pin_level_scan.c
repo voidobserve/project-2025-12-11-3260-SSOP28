@@ -6,13 +6,9 @@ volatile u16 pin_level_scan_time_cnt;
 
 void pin_level_scan_config(void)
 {
-#if 0
-    // p21_input_config(); // 远光灯状态对应的引脚
-    // 配置为输入模式
-    P2_MD0 &= ~(GPIO_P21_MODE_SEL(0x3));
-    // 配置为上拉
-    P2_PU |= (GPIO_P21_PULL_UP(0x1));
-#endif
+
+    // 大灯对应的检测引脚
+    P2_MD0 &= ~(GPIO_P21_MODE_SEL(0x03)); // 配置为输入模式
 
     // 左转向灯对应的引脚
     P2_MD1 &= ~(GPIO_P25_MODE_SEL(0x3)); // 配置为输入模式
@@ -43,8 +39,6 @@ void pin_level_scan_config(void)
 
     // 检测 水温报警 的引脚:
     P2_MD0 &= ~(GPIO_P20_MODE_SEL(0x03)); // 输入模式
-    P2_PU |= GPIO_P20_PULL_UP(0x01);      // 上拉
- 
 }
 
 // 引脚电平扫描，都是低电平有效
@@ -106,101 +100,102 @@ void pin_level_scan(void)
         //     fun_info.high_beam = ON;
         // }
         // flag_get_high_beam = 1;
-#endif
 
-        // 以最低挡位优先，当最低档有信号时，不管其他挡位的信号，直接以最低档的为主
-        if (0 == PIN_DETECT_NEUTRAL_GEAR)
+        // 目前用存放远光灯的变量用来存放大灯的状态，硬件引脚没有检测远光灯，不会造成冲突
+        if (PIN_DETECT_HEAD_LIGHT)
         {
-            // 空挡
-            fun_info.gear = GEAR_NEUTRAL;
-        }
-        else if (0 == PIN_DETECT_FIRST_GEAR)
-        {
-            // 一档
-            fun_info.gear = GEAR_FIRST;
-        }
-        else if (0 == PIN_DETECT_SECOND_GEAR)
-        {
-            // 二档
-            fun_info.gear = GEAR_SECOND;
-        }
-        else if (0 == PIN_DETECT_THIRD_GEAR)
-        {
-            // 三档
-            fun_info.gear = GEAR_THIRD;
-        }
-        else if (0 == PIN_DETECT_FOURTH_GEAR)
-        {
-            // 四档
-            fun_info.gear = GEAR_FOURTH;
-        }
-        else if (0 == PIN_DETECT_FIFTH_GEAR)
-        {
-            // 五档
-            fun_info.gear = GEAR_FIFTH;
-        }
-        else if (0 == PIN_DETECT_XIXTH_GEAR)
-        {
-            // 六档
-            fun_info.gear = GEAR_SIXTH;
+            // 如果大灯未开启
+            fun_info.high_beam = OFF;
         }
         else
         {
-            /*
-                空挡、一档 ~ 六档都没有检测到，则赋值为 GEAR_UNKNOWN
-                让显示屏中档位对应的图标空着
-            */
-            fun_info.gear = GEAR_UNKNOWN;
+            // 如果大灯开启
+            fun_info.high_beam = ON;
         }
 
-        // printf("cur gear %bu\n", fun_info.gear);
-        flag_get_gear = 1;
-
-        if (0 == PIN_DETECT_TEMP_OF_WATER_ALERT)
-        {
-
-            // 如果检测到水温报警
-            fun_info.flag_is_in_water_temp_warning = 1;
-        }
-        else
-        {
-            // 如果未检测到水温报警
-            fun_info.flag_is_in_water_temp_warning = 0;
-        }
-        flag_set_temp_of_water_warning = 1;
-
-        if (0 == PIN_DETECT_MALFUNCTION)
-        {
-            // 如果检测到了故障
-            fun_info.flag_is_detect_malfunction = 1;
-
-            // 没有引脚检测abs的状态，这里检测到故障后，也顺便设置abs的状态
-            // fun_info.flag_is_detect_abs = 1;
-        }
-        else
-        {
-            // 如果未检测到故障
-            fun_info.flag_is_detect_malfunction = 0;
-
-            // 没有引脚检测abs的状态，这里更新故障的状态后，也顺便设置abs的状态
-            // fun_info.flag_is_detect_abs = 0;
-        }
-
-        //   printf("cur malfunction %bu\n", fun_info.flag_is_detect_malfunction);
-
-        flag_update_malfunction_status = 1;
+        flag_get_high_beam = 1;
     }
 
-    // if () // ACC引脚检测，检测到高电平，P03也输出高电平，检测到低电平，让P03输出低电平
-    // if (P04)
+#endif
+
+    // 以最低挡位优先，当最低档有信号时，不管其他挡位的信号，直接以最低档的为主
+    if (0 == PIN_DETECT_NEUTRAL_GEAR)
+    {
+        // 空挡
+        fun_info.gear = GEAR_NEUTRAL;
+    }
+    else if (0 == PIN_DETECT_FIRST_GEAR)
+    {
+        // 一档
+        fun_info.gear = GEAR_FIRST;
+    }
+    else if (0 == PIN_DETECT_SECOND_GEAR)
+    {
+        // 二档
+        fun_info.gear = GEAR_SECOND;
+    }
+    else if (0 == PIN_DETECT_THIRD_GEAR)
+    {
+        // 三档
+        fun_info.gear = GEAR_THIRD;
+    }
+    else if (0 == PIN_DETECT_FOURTH_GEAR)
+    {
+        // 四档
+        fun_info.gear = GEAR_FOURTH;
+    }
+    else if (0 == PIN_DETECT_FIFTH_GEAR)
+    {
+        // 五档
+        fun_info.gear = GEAR_FIFTH;
+    }
+    else if (0 == PIN_DETECT_XIXTH_GEAR)
+    {
+        // 六档
+        fun_info.gear = GEAR_SIXTH;
+    }
+    else
+    {
+        /*
+            空挡、一档 ~ 六档都没有检测到，则赋值为 GEAR_UNKNOWN
+            让显示屏中档位对应的图标空着
+        */
+        fun_info.gear = GEAR_UNKNOWN;
+    }
+
+    // printf("cur gear %bu\n", fun_info.gear);
+    flag_get_gear = 1;
+
+    if (0 == PIN_DETECT_TEMP_OF_WATER_ALERT)
+    {
+        // 如果检测到水温报警
+        fun_info.flag_is_in_water_temp_warning = 1;
+    }
+    else
+    {
+        // 如果未检测到水温报警
+        fun_info.flag_is_in_water_temp_warning = 0;
+    }
+    flag_set_temp_of_water_warning = 1;
+
+    // if (0 == PIN_DETECT_MALFUNCTION)
     // {
-    //     // 检测到ACC为高电平,
-    //     P03 = 1;
+    //     // 如果检测到了故障
+    //     fun_info.flag_is_detect_malfunction = 1;
+
+    //     // 没有引脚检测abs的状态，这里检测到故障后，也顺便设置abs的状态
+    //     // fun_info.flag_is_detect_abs = 1;
     // }
     // else
     // {
-    //     P03 = 0;
+    //     // 如果未检测到故障
+    //     fun_info.flag_is_detect_malfunction = 0;
+
+    //     // 没有引脚检测abs的状态，这里更新故障的状态后，也顺便设置abs的状态
+    //     // fun_info.flag_is_detect_abs = 0;
     // }
+    // //   printf("cur malfunction %bu\n", fun_info.flag_is_detect_malfunction);
+    // flag_update_malfunction_status = 1;
 }
 
 #endif
