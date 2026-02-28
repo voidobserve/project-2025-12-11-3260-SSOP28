@@ -8,8 +8,8 @@ volatile bit flag_get_all_status; // 获取所有功能的状态
 volatile bit flag_get_gear;       // 获取挡位状态 / 得到了挡位的状态
 volatile bit flag_get_battery;    // 获取电池状态 / 得到了电池的状态（电池电量，单位：百分比）
 // volatile bit flag_get_brake;        // 获取刹车状态 / 得到了刹车的状态
-volatile bit flag_get_left_turn;  // 获取左转向灯的状态 / 得到了左转向灯的状态
-volatile bit flag_get_right_turn; // 获取右转向灯的状态 / 得到了右转向灯的状态
+volatile bit flag_get_left_turn;    // 获取左转向灯的状态 / 得到了左转向灯的状态
+volatile bit flag_get_right_turn;   // 获取右转向灯的状态 / 得到了右转向灯的状态
 volatile bit flag_get_high_beam;    // 获取远光灯的状态 / 得到了远光灯的状态
 volatile bit flag_get_engine_speed; // 获取发动机的转速 / 得到了发动机的转速
 volatile bit flag_get_speed;        // 获取时速 / 得到了时速
@@ -18,15 +18,16 @@ volatile bit flag_get_fuel;         // 获取油量 / 得到了油量（单位�
 // volatile bit flag_get_temp_of_water = 0; // 获取水温 / 得到了水温
 #endif
 // volatile bit flag_update_malfunction_status; // 标志位，更新故障状态
-volatile bit flag_update_abs_status;         // 标志位，更新abs的状态
+volatile bit flag_update_abs_status; // 标志位，更新abs的状态
 
-volatile bit flag_get_total_mileage;       // 获取大计里程 / 得到了大计里程(数据需要更新)
-volatile bit flag_get_sub_total_mileage;   // 获取小计里程 / 得到了小计里程(数据需要更新)
-volatile bit flag_get_sub_total_mileage_2; // 获取小计里程2 / 得到了小计里程2(数据需要更新)
+volatile bit flag_get_total_mileage;     // 获取大计里程 / 得到了大计里程(数据需要更新)
+volatile bit flag_get_sub_total_mileage; // 获取小计里程 / 得到了小计里程(数据需要更新)
+// volatile bit flag_get_sub_total_mileage_2; // 获取小计里程2 / 得到了小计里程2(数据需要更新)
 
 // volatile bit flag_get_touch_key_status = 0; // 获取触摸按键的状态
 // volatile bit flag_alter_date = 0; // 修改日期
 volatile bit flag_alter_time; // 修改时间
+volatile bit flag_get_time;   // 获取时间
 
 volatile bit flag_get_voltage_of_battery; // 获取电池电压
 
@@ -77,7 +78,7 @@ void instruction_scan(void)
                     break;
 
                 case INSTRUCTION_GET_SUBTOTAL_MILEAGE_2: // 获取小计里程2
-                    flag_get_sub_total_mileage_2 = 1;
+                    // flag_get_sub_total_mileage_2 = 1;
                     break;
 
                 case INSTRUCTION_ALTER_TIME: // 修改时间
@@ -126,6 +127,10 @@ void instruction_scan(void)
                 case INSTRUCTION_CLEAR_SUBTOTAL_MILEAGE_2: // 清除小计里程2
                     flag_clear_sub_total_mileage_2 = 1;
                     break;
+
+                case INSTRUCTION_GET_TIME: // 获取时间
+                    flag_get_time = 1;
+                    break;
                 }
 
                 if (recv_frame_cnt > 0) //
@@ -143,7 +148,7 @@ void instruction_scan(void)
 }
 
 void instruction_handle(void)
-{ 
+{
     if (flag_get_all_status)
     {
         // 如果要获取所有功能的状态
@@ -166,11 +171,11 @@ void instruction_handle(void)
             send_data_packet(SEND_SPEED_WITH_MILE); // 发送时速（单位：英里每小时 mile/h） 1km/h == 0.621427mile/h
             send_data_packet(SEND_FUEL);            // 发送当前油量(单位：百分比)
 
-            send_data_packet(SEND_TOTAL_MILEAGE_TENTH_OF_KM);   // 发送大计里程， 数据 3 byte ， 单位： 0.1 km
-            send_data_packet(SEND_TOTAL_MILEAGE_TENTH_OF_MILE); // 发送大计里程， 数据 3 byte ， 单位： 0.1 mile
+            send_data_packet(SEND_TOTAL_MILEAGE_WITH_KM); // 发送大计里程
+            // send_data_packet(SEND_TOTAL_MILEAGE_TENTH_OF_MILE); // 发送大计里程
 
-            send_data_packet(SEND_SUBTOTAL_MILEAGE_TENTH_OF_KM);   // 发送大计里程（总里程，单位：英里 mile），只发送1英里以上的数据
-            send_data_packet(SEND_SUBTOTAL_MILEAGE_TENTH_OF_MILE); // 发送小计里程（总里程，单位：0.1 英里 0.1 mile），只发送0.1英里以上的数据
+            send_data_packet(SEND_SUBTOTAL_MILEAGE_WITH_KM); // 发送小计里程
+                                                             // send_data_packet(SEND_SUBTOTAL_MILEAGE_TENTH_OF_MILE); // 发送小计里程（总里程，单位：0.1 英里 0.1 mile），只发送0.1英里以上的数据
 
 #if IC_1302_ENABLE
             aip1302_read_all(); // 先从aip1302时钟ic获取所有关于时间的信息，再发送
@@ -280,7 +285,7 @@ void instruction_handle(void)
 #endif
 
         // 只发送千米及以上的数据
-        // send_data_packet(SEND_TOTAL_MILEAGE_TENTH_OF_KM);
+        send_data_packet(SEND_TOTAL_MILEAGE_WITH_KM);
         // send_data_packet(SEND_TOTAL_MILEAGE_WITH_MILE); // 1km == 0.621427mile
     }
 
@@ -290,28 +295,20 @@ void instruction_handle(void)
         flag_get_sub_total_mileage = 0;
         // printf(" cur subtotal mileage %lu m \n", (u32)fun_info.save_info.subtotal_mileage);
 
-        // 只发送百米及以上的数据
-        send_data_packet(SEND_TOTAL_MILEAGE_TENTH_OF_KM);
+        send_data_packet(SEND_SUBTOTAL_MILEAGE_WITH_KM);
 
         // 1km == 0.621427mile，1km == 6.21427 * 0.1 mile
         // send_data_packet(SEND_SUBTOTAL_MILEAGE_WITH_TENTH_OF_MILE);
     }
 
-    if (flag_get_sub_total_mileage_2) // // 如果要获取小计里程2 / 得到了小计里程2新的数据
-    {
-        flag_get_sub_total_mileage_2 = 0;
-        // 只发送百米及以上的数据
-        // send_data_packet(SEND_SUBTOTAL_MILEAGE_2);
-        // 1km == 0.621427mile，1km == 6.21427 * 0.1 mile
-        // send_data_packet(SEND_SUBTOTAL_MILEAGE_2_WITH_TENTH_OF_MILE);
-    }
-
-    if (flag_set_temp_of_water_warning)
-    {
-        flag_set_temp_of_water_warning = 0;
-
-        send_data_packet(SEND_TEMP_OF_WATER_ALERT);
-    }
+    // if (flag_get_sub_total_mileage_2) // // 如果要获取小计里程2 / 得到了小计里程2新的数据
+    // {
+    //     flag_get_sub_total_mileage_2 = 0;
+    //     // 只发送百米及以上的数据
+    //     // send_data_packet(SEND_SUBTOTAL_MILEAGE_2);
+    //     // 1km == 0.621427mile，1km == 6.21427 * 0.1 mile
+    //     // send_data_packet(SEND_SUBTOTAL_MILEAGE_2_WITH_TENTH_OF_MILE);
+    // }
 
     if (flag_set_temp_of_water_warning)
     {
@@ -384,17 +381,24 @@ void instruction_handle(void)
 #endif
     }
 
-    if (flag_clear_sub_total_mileage_2) // 如果要清除小计里程2
-    {
-        flag_clear_sub_total_mileage_2 = 0;
-        fun_info.save_info.subtotal_mileage_2 = 0;
-        distance = 0;
-        fun_info_save(); // 将信息写回flash
-    }
+    // if (flag_clear_sub_total_mileage_2) // 如果要清除小计里程2
+    // {
+    //     flag_clear_sub_total_mileage_2 = 0;
+    //     fun_info.save_info.subtotal_mileage_2 = 0;
+    //     distance = 0;
+    //     fun_info_save(); // 将信息写回flash
+    // }
 
     if (flag_get_high_beam)
     {
         flag_get_high_beam = 0;
         send_data_packet(SEND_HIGH_BEAM);
     }
+
+    if (flag_get_time)
+    {
+        flag_get_time = 0;
+        aip1302_read_all();
+        send_data_packet(SEND_TIME_H_M_S);
+    } 
 }

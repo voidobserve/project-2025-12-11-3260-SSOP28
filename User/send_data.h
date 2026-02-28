@@ -22,11 +22,8 @@ enum
     SEND_FUEL = 0x09,         // 发送 油量
     SEND_WATER_TEMP = 0x0A,   // 发送 水温
 
-    /*
-        发送大计里程， 数据 3 byte ， 数据直接用作屏幕显示，
-        例如 0d 04 17 65 ，显示 04176.5 km
-    */ 
-    SEND_TOTAL_MILEAGE_TENTH_OF_KM = 0x0B,
+ 
+    SEND_TOTAL_MILEAGE_WITH_KM = 0x0B,
     /*
         发送大计里程， 数据 3 byte ， 数据直接用作屏幕显示，
         例如 0d 04 17 65 ，显示 04176.5 mile
@@ -35,6 +32,7 @@ enum
 
     SEND_TOUCH_KEY_STATUS = 0x0D, // 发送触摸按键的状态
     SEND_TIME = 0x0E,             // 发送时间（年月日，时分秒）
+    SEND_TIME_H_M_S = 0x0F, // 发送时间（时分秒）
 
     SEND_VOLTAGE_OF_BATTERY = 0x10,  // 发送电池电压
     SEND_TEMP_OF_WATER_ALERT = 0x11, // 发送水温报警
@@ -46,7 +44,7 @@ enum
         发送小计里程， 数据 3 byte ， 数据直接用作屏幕显示，
         例如 0d 04 17 65 ，显示 04176.5 km
     */ 
-    SEND_SUBTOTAL_MILEAGE_TENTH_OF_KM = 0x14,
+    SEND_SUBTOTAL_MILEAGE_WITH_KM = 0x14,
     /*
         发送小计里程， 数据 3 byte ， 数据直接用作屏幕显示，
         例如 0d 04 17 65 ，显示 04176.5 mile

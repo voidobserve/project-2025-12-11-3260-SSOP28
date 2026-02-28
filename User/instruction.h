@@ -40,8 +40,11 @@ enum
     INSTRUCTION_GET_SUBTOTAL_MILEAGE_2 = 0x94, // 获取小计里程2
 
     // INSTRUCTION_GET_TOUCH_KEY_STATUS = 0x2D,      // 获取触摸按键状态
-    INSTRUCTION_ALTER_DATE = 0x2E,      // 修改日期
-    INSTRUCTION_ALTER_TIME = 0x8E,      // 修改时间
+    INSTRUCTION_ALTER_DATE = 0x2E, // 修改日期
+    INSTRUCTION_ALTER_TIME = 0x8E, // 修改时间
+
+    INSTRUCTION_GET_TIME = 0x8F, // 获取时间
+
     INSTRUCTION_GET_BATTERY_VAL = 0x30, // 获取电池电压
 #if TEMP_OF_WATER_SCAN_ENABLE
     INSTRUCTION_SET_TEMP_OF_WATER_WARNING = 0x31, // 设置水温报警
@@ -60,9 +63,9 @@ enum
 //     OPERATION_SET_TEMP_OF_WATER_WARNING_OFF,      // 关闭水温报警
 // };
 
-extern volatile bit flag_get_all_status;   // 获取所有功能的状态
-extern volatile bit flag_get_gear;         // 获取挡位状态 / 得到了挡位的状态
-extern volatile bit flag_get_battery;      // 获取电池电量的状态/ 得到了电池的状态（电池电量，单位：百分比）
+extern volatile bit flag_get_all_status; // 获取所有功能的状态
+extern volatile bit flag_get_gear;       // 获取挡位状态 / 得到了挡位的状态
+extern volatile bit flag_get_battery;    // 获取电池电量的状态/ 得到了电池的状态（电池电量，单位：百分比）
 // extern volatile bit flag_get_brake;        // 获取刹车状态 / 得到了刹车的状态
 extern volatile bit flag_get_left_turn;    // 获取左转向灯的状态 / 得到了左转向灯的状态
 extern volatile bit flag_get_right_turn;   // 获取右转向灯的状态 / 得到了右转向灯的状态
@@ -75,16 +78,17 @@ extern volatile bit flag_get_fuel;         // 获取油量 / 得到了油量（�
 #endif
 
 // extern volatile bit flag_update_malfunction_status; // 标志位，更新故障的状态
-extern volatile bit flag_update_abs_status;         // 标志位，更新abs的状态
+extern volatile bit flag_update_abs_status; // 标志位，更新abs的状态
 
 extern volatile bit flag_get_total_mileage;       // 获取大计里程 / 得到了大计里程
 extern volatile bit flag_get_sub_total_mileage;   // 获取小计里程 / 得到了小计里程
-extern volatile bit flag_get_sub_total_mileage_2; // 获取小计里程2 / 得到了小计里程2(数据需要更新)
+// extern volatile bit flag_get_sub_total_mileage_2; // 获取小计里程2 / 得到了小计里程2(数据需要更新)
 
 // extern volatile bit flag_get_touch_key_status;      // 获取触摸按键的状态
-extern volatile bit flag_alter_date;                // 修改日期
-extern volatile bit flag_alter_time;                // 修改时间
-extern volatile bit flag_get_voltage_of_battery;    // 获取电池电压
+extern volatile bit flag_alter_date;             // 修改日期
+extern volatile bit flag_alter_time;             // 修改时间
+extern volatile bit flag_get_time;               // 获取时间
+extern volatile bit flag_get_voltage_of_battery; // 获取电池电压
 // #if TEMP_OF_WATER_SCAN_ENABLE
 extern volatile bit flag_set_temp_of_water_warning; // 设置水温报警
 // #endif
@@ -95,7 +99,7 @@ extern volatile bit flag_clear_sub_total_mileage_2; // 清除小计里程2
 extern volatile u8 synchronous_request_status;    // 同步请求状态机
 extern volatile u16 synchronous_request_time_cnt; // 同步请求时间计时
 
-extern volatile u8 update_time_status;       // 更新时间的状态机
+extern volatile u8 update_time_status; // 更新时间的状态机
 // extern volatile u8 update_date_status;       // 更新日期的状态机
 extern volatile u16 update_time_cooling_cnt; // 更新时间的冷却计数
 // extern volatile u16 update_date_cooling_cnt; // 更新日期的冷却计数

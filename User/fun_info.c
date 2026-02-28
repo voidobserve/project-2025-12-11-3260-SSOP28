@@ -86,7 +86,7 @@ void fun_info_init(void)
     {
         fun_info.save_info.total_mileage = save_info.total_mileage;
         fun_info.save_info.subtotal_mileage = save_info.subtotal_mileage;
-        fun_info.save_info.subtotal_mileage_2 = save_info.subtotal_mileage_2;
+        // fun_info.save_info.subtotal_mileage_2 = save_info.subtotal_mileage_2;
     }
     else
     {

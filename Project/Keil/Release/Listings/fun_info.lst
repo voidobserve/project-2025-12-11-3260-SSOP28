@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   FUN_INFO                                                          01/05/2026 13:49:42 PAGE 1   
+C51 COMPILER V9.60.7.0   FUN_INFO                                                          02/10/2026 16:28:57 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE FUN_INFO
@@ -62,7 +62,7 @@ line level    source
                           如果是奇数页面id，
                           得到的奇数 - 1，作为同一组页面的第一个页面 prev
                           得到的奇数，作为同一组页面的第二个页面 next
-C51 COMPILER V9.60.7.0   FUN_INFO                                                          01/05/2026 13:49:42 PAGE 2   
+C51 COMPILER V9.60.7.0   FUN_INFO                                                          02/10/2026 16:28:57 PAGE 2   
 
                       */
                       page_id -= 1;
@@ -100,7 +100,7 @@ line level    source
   86   1          {
   87   2              fun_info.save_info.total_mileage = save_info.total_mileage;
   88   2              fun_info.save_info.subtotal_mileage = save_info.subtotal_mileage;
-  89   2              fun_info.save_info.subtotal_mileage_2 = save_info.subtotal_mileage_2;
+  89   2              // fun_info.save_info.subtotal_mileage_2 = save_info.subtotal_mileage_2;
   90   2          }
   91   1          else
   92   1          {
@@ -126,7 +126,7 @@ line level    source
              -�上电读出数据时，验证该标志位
  111   1          flash_program(FLASH_START_ADDR, (u8 *)&fun_info.save_info, sizeof(save_info_t));
  112   1      #endif
-C51 COMPILER V9.60.7.0   FUN_INFO                                                          01/05/2026 13:49:42 PAGE 3   
+C51 COMPILER V9.60.7.0   FUN_INFO                                                          02/10/2026 16:28:57 PAGE 3   
 
  113   1      
  114   1          // DEBUG ：
@@ -135,9 +135,9 @@ line level    source
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =     89    ----
+   CODE SIZE        =     77    ----
    CONSTANT SIZE    =   ----    ----
-   XDATA SIZE       =     39      13
+   XDATA SIZE       =     35       9
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----

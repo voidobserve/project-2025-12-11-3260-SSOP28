@@ -117,49 +117,39 @@ void send_data_packet(SEND_DATA_CMD_T cmd)
     // }
     // break;
     // ====================================================================
-    // 发送大计里程， 数据 3 byte
-    case SEND_TOTAL_MILEAGE_TENTH_OF_KM:
+    // 发送大计里程， 数据 4 byte
+    case SEND_TOTAL_MILEAGE_WITH_KM:
     {
-        send_data_packet_len = 7; // 发送指令的总长度
+        send_data_packet_len = 8; // 发送指令的总长度
         send_data_packet[1] = send_data_packet_len;
-
-        /*
-            发送的数据直接用作屏幕显示，这里需要提前做好转换
-
-            一个字节存储两位十进制数
-
-            (tmp_val % 100 / 10) ，取十位的数，放在低4位
-            (tmp_val % 10) << 4 ,取个位的数，放在高4位
-        */
         tmp_val = fun_info.save_info.total_mileage / 1000; // 存放以 km 为单位的数据
-        send_data_packet[5] = (tmp_val % 100 / 10) | (tmp_val % 10) << 4;
-        tmp_val /= 100;
-        send_data_packet[4] = (tmp_val % 100 / 10) | (tmp_val % 10) << 4;
-        tmp_val /= 100;
-        send_data_packet[3] = (tmp_val % 100 / 10) | (tmp_val % 10) << 4;
+        send_data_packet[3] = (tmp_val >> 24) & 0xFF;
+        send_data_packet[4] = (tmp_val >> 16) & 0xFF;
+        send_data_packet[5] = (tmp_val >> 8) & 0xFF;
+        send_data_packet[6] = tmp_val & 0xFF;
     }
     break;
     // ====================================================================
     // 发送大计里程， 数据 3 byte
     case SEND_TOTAL_MILEAGE_TENTH_OF_MILE:
     {
-        send_data_packet_len = 7; // 发送指令的总长度
-        send_data_packet[1] = send_data_packet_len;
+        // send_data_packet_len = 7; // 发送指令的总长度
+        // send_data_packet[1] = send_data_packet_len;
 
-        /*
-            发送的数据直接用作屏幕显示，这里需要提前做好转换
+        // /*
+        //     发送的数据直接用作屏幕显示，这里需要提前做好转换
 
-            1 km == 0.621371 mile
-            1 / 0.621371 约为 1.6093444978925633800096882538773，
-            这里取 1.61 作为转换系数
-            1000 m / 161 ，得到 以 0.1 mile 为单位的数据
-        */
-        tmp_val = fun_info.save_info.total_mileage / 1610; // 得到以 mile 为单位的数据
-        send_data_packet[5] = (tmp_val % 100 / 10) | (tmp_val % 10) << 4;
-        tmp_val /= 100;
-        send_data_packet[4] = (tmp_val % 100 / 10) | (tmp_val % 10) << 4;
-        tmp_val /= 100;
-        send_data_packet[3] = (tmp_val % 100 / 10) | (tmp_val % 10) << 4;
+        //     1 km == 0.621371 mile
+        //     1 / 0.621371 约为 1.6093444978925633800096882538773，
+        //     这里取 1.61 作为转换系数
+        //     1000 m / 161 ，得到 以 0.1 mile 为单位的数据
+        // */
+        // tmp_val = fun_info.save_info.total_mileage / 1610; // 得到以 mile 为单位的数据
+        // send_data_packet[5] = (tmp_val % 100 / 10) | (tmp_val % 10) << 4;
+        // tmp_val /= 100;
+        // send_data_packet[4] = (tmp_val % 100 / 10) | (tmp_val % 10) << 4;
+        // tmp_val /= 100;
+        // send_data_packet[3] = (tmp_val % 100 / 10) | (tmp_val % 10) << 4;
     }
     break;
     // ====================================================================
@@ -178,6 +168,14 @@ void send_data_packet(SEND_DATA_CMD_T cmd)
         send_data_packet[9] = fun_info.aip1302_saveinfo.time_sec;
     }
     break;
+    // ====================================================================
+    case SEND_TIME_H_M_S:
+        send_data_packet_len = 7;
+        send_data_packet[1] = send_data_packet_len;
+        send_data_packet[3] = fun_info.aip1302_saveinfo.time_hour;
+        send_data_packet[4] = fun_info.aip1302_saveinfo.time_min;
+        send_data_packet[5] = fun_info.aip1302_saveinfo.time_sec;
+        break;
     // ====================================================================
     // 发送 电池电压
     case SEND_VOLTAGE_OF_BATTERY:
@@ -209,21 +207,16 @@ void send_data_packet(SEND_DATA_CMD_T cmd)
     // }
     // break;
     // ====================================================================
-    // 发送 发送小计里程， 数据 3 byte
-    case SEND_SUBTOTAL_MILEAGE_TENTH_OF_KM:
+    // 发送 发送小计里程， 数据 4 byte
+    case SEND_SUBTOTAL_MILEAGE_WITH_KM:
     {
-        send_data_packet_len = 7; // 发送指令的总长度
+        send_data_packet_len = 8; // 发送指令的总长度
         send_data_packet[1] = send_data_packet_len;
-
-        /*
-            发送的数据直接用作屏幕显示，这里需要提前做好转换
-        */
         tmp_val = fun_info.save_info.subtotal_mileage / 100; // 存放以百米为单位的数据
-        send_data_packet[5] = (tmp_val % 100 / 10) | (tmp_val % 10) << 4;
-        tmp_val /= 100;
-        send_data_packet[4] = (tmp_val % 100 / 10) | (tmp_val % 10) << 4;
-        tmp_val /= 100;
-        send_data_packet[3] = (tmp_val % 100 / 10) | (tmp_val % 10) << 4;
+        send_data_packet[3] = (tmp_val >> 24) & 0xFF;
+        send_data_packet[4] = (tmp_val >> 16) & 0xFF;
+        send_data_packet[5] = (tmp_val >> 8) & 0xFF;
+        send_data_packet[6] = tmp_val & 0xFF;
     }
     break;
     // ====================================================================

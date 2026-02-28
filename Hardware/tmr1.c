@@ -55,12 +55,7 @@ void TIMR1_IRQHandler(void) interrupt TMR1_IRQn
     if (TMR1_CONH & TMR_PRD_PND(0x1))
     {
         TMR1_CONH |= TMR_PRD_PND(0x1); // 清除pending
-
-        // if (tmr1_cnt < 4294967295)
-        // {
-        //     tmr1_cnt++;
-        // }
-
+   
         // 串口接收超时计数
         if (flag_is_uart0_receive_timeout_enable)
         {
@@ -155,31 +150,9 @@ void TIMR1_IRQHandler(void) interrupt TMR1_IRQn
             battery_scan_time_cnt++;
         }
 #endif // BATTERY_SCAN_ENABLE
+ 
 
-#if 0 // DEBUG 只在测试时使用
-
-            {
-                static u16 cnt;
-                cnt++;
-                if (cnt >= 1000)
-                {
-                    cnt = 0;
-                    flag_is_debug_update = 1;
-                }
-            }
-
-#endif // // DEBUG 只在测试时使用
-
-        // {
-        //     static u16 cnt;
-        //     cnt++;
-        //     if (cnt >= 4000)
-        //     {
-        //         cnt = 0;
-        //         flag_debug_is_send_time = 1; // 发送时间
-        //         // flag_debug_is_send_time_2 = 1;
-        //     }
-        // }
+        
     }
 
     // P20 = 0;// 测试中断持续时间

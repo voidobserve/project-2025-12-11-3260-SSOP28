@@ -96,6 +96,10 @@ void main(void)
     delay_ms(1000);
     P23 = 0;
 
+    // USER_TO_DO 测试时使用，实际需要删除
+    //     fun_info.save_info.total_mileage = (u32)1234567800;
+    //     fun_info.save_info.subtotal_mileage = (u32)1234567800;
+
     /* 系统主循环 */
     while (1)
     {

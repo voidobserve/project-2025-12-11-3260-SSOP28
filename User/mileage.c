@@ -13,13 +13,16 @@ void mileage_scan(void)
     // 下面这组变量用来控制每走过一段距离时，发送里程数据
     static u32 old_total_mileage;      // 用来记录旧的大计里程的变量
     static u32 old_subtotal_mileage;   // 用来记录旧的小计里程的变量
-    static u32 old_subtotal_mileage_2; // 用来记录旧的小计里程2的变量
+    // static u32 old_subtotal_mileage_2; // 用来记录旧的小计里程2的变量
 
     /*
         是否有里程数据需要保存的标志变量，0--没有里程变化，不需要保存，1--有里程变化，需要保存
         目前每过1m就会置位一次，保存之后清零
     */
     static volatile bit flag_is_any_mileage_save;
+
+    // 每隔一段时间，交替发送大计里程和小计里程，用该变量来控制交替
+    static volatile bit is_send_total_mileage = 0; // 是否发送大计里程
 
     // 每过1s，且里程有变化，就保存一次；这个里程变化的条件最好大于10m，否则会经常写入eeprom
     if ((mileage_save_time_cnt >= 1000) && /* 1s后 */
@@ -49,10 +52,10 @@ void mileage_scan(void)
             fun_info.save_info.subtotal_mileage++; // +1m
         }
 
-        if (fun_info.save_info.subtotal_mileage_2 < (u32)(9999999)) // 9999.9KM， 9999 999 m
-        {
-            fun_info.save_info.subtotal_mileage_2++; // +1m
-        }
+        // if (fun_info.save_info.subtotal_mileage_2 < (u32)(9999999)) // 9999.9KM， 9999 999 m
+        // {
+        //     fun_info.save_info.subtotal_mileage_2++; // +1m
+        // }
 
         distance -= 1000; // 剩下的、未保存的、不满1m的数据留到下一次再保存
 
@@ -89,15 +92,15 @@ void mileage_scan(void)
         flag_get_sub_total_mileage = 1;
     }
 
-    if ((fun_info.save_info.subtotal_mileage_2 - old_subtotal_mileage_2) > 100)
-    {
-        old_subtotal_mileage_2 = fun_info.save_info.subtotal_mileage_2; // 记录旧的里程
+    // if ((fun_info.save_info.subtotal_mileage_2 - old_subtotal_mileage_2) > 100)
+    // {
+    //     old_subtotal_mileage_2 = fun_info.save_info.subtotal_mileage_2; // 记录旧的里程
 
-        // printf("subtotal mileage_2: %lu m\n", fun_info.save_info.subtotal_mileage_2);
+    //     // printf("subtotal mileage_2: %lu m\n", fun_info.save_info.subtotal_mileage_2);
 
-        // 发送数据的操作，可以先置标志位
-        flag_get_sub_total_mileage_2 = 1;
-    }
+    //     // 发送数据的操作，可以先置标志位
+    //     flag_get_sub_total_mileage_2 = 1;
+    // }
 
     if (mileage_update_time_cnt >= MILEAGE_UPDATE_TIME_MS)
     {
@@ -105,8 +108,20 @@ void mileage_scan(void)
         // 因为最后大计里程在999999km,小计里程在999.9km之后，就不更新了，
         // 要在刷新一次，才会发送1000000km和1000.0km的大小里程
         mileage_update_time_cnt = 0;
-        flag_get_total_mileage = 1; //
-        flag_get_sub_total_mileage = 1;
-        flag_get_sub_total_mileage_2 = 1;
+
+        if (0 == is_send_total_mileage)
+        {
+            
+            flag_get_sub_total_mileage = 1;
+        }
+        else
+        {
+            flag_get_total_mileage = 1; //
+        }
+
+        is_send_total_mileage = !is_send_total_mileage;
+        
+        
+        // flag_get_sub_total_mileage_2 = 1;
     }
 }

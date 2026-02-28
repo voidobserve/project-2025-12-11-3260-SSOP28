@@ -5,8 +5,8 @@
 #include "my_config.h" // 包含自定义的头文件
 
 // 串口0波特率
-#define UART0_BAUDRATE (115200)
-// #define UART0_BAUDRATE (1500000)
+// #define UART0_BAUDRATE (115200 / 2) 
+#define UART0_BAUDRATE (38400)
 // 串口1波特率
 // #define UART1_BAUDRATE 115200 // 这款芯片（TX3260）不能使用UART1的DMA来接收不定长的数据
 

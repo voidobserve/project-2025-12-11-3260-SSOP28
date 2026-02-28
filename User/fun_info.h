@@ -41,7 +41,7 @@ typedef struct
     // 短距离里程表(单位：m，使用英制单位时，只需要再发送时进行转换)
     // （小计里程，范围：0~999.9 KM）
     u32 subtotal_mileage;
-    u32 subtotal_mileage_2; // 小计里程2
+    // u32 subtotal_mileage_2; // 小计里程2
 
     u8 is_save_data_valid;
 } save_info_t;
