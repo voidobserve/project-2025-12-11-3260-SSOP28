@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   SEND_DATA                                                         02/28/2026 14:47:01 PAGE 1   
+C51 COMPILER V9.60.7.0   SEND_DATA                                                         03/13/2026 08:55:20 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE SEND_DATA
@@ -62,7 +62,7 @@ line level    source
   50   2          case SEND_LEFT_TURN:
   51   2          {
   52   3              send_data_packet_len = 5;
-C51 COMPILER V9.60.7.0   SEND_DATA                                                         02/28/2026 14:47:01 PAGE 2   
+C51 COMPILER V9.60.7.0   SEND_DATA                                                         03/13/2026 08:55:20 PAGE 2   
 
   53   3              send_data_packet[1] = send_data_packet_len;
   54   3              send_data_packet[3] = fun_info.left_turn;
@@ -126,7 +126,7 @@ line level    source
  111   2          // // 发送 水温
  112   2          // case SEND_WATER_TEMP:
  113   2          // {
-C51 COMPILER V9.60.7.0   SEND_DATA                                                         02/28/2026 14:47:01 PAGE 3   
+C51 COMPILER V9.60.7.0   SEND_DATA                                                         03/13/2026 08:55:20 PAGE 3   
 
  114   2          //     send_data_packet_len = 5;
  115   2          //     send_data_packet[1] = send_data_packet_len;
@@ -190,7 +190,7 @@ line level    source
  173   2              send_data_packet_len = 7;
  174   2              send_data_packet[1] = send_data_packet_len;
  175   2              send_data_packet[3] = fun_info.aip1302_saveinfo.time_hour;
-C51 COMPILER V9.60.7.0   SEND_DATA                                                         02/28/2026 14:47:01 PAGE 4   
+C51 COMPILER V9.60.7.0   SEND_DATA                                                         03/13/2026 08:55:20 PAGE 4   
 
  176   2              send_data_packet[4] = fun_info.aip1302_saveinfo.time_min;
  177   2              send_data_packet[5] = fun_info.aip1302_saveinfo.time_sec;
@@ -254,7 +254,7 @@ line level    source
  235   3                  1000 m / 161 ，得到 以 0.1 mile 为单位的数据
  236   3              */
  237   3              tmp_val = fun_info.save_info.subtotal_mileage / 161; // 得到 以 0.1 mile 为单位的数据
-C51 COMPILER V9.60.7.0   SEND_DATA                                                         02/28/2026 14:47:01 PAGE 5   
+C51 COMPILER V9.60.7.0   SEND_DATA                                                         03/13/2026 08:55:20 PAGE 5   
 
  238   3              send_data_packet[5] = (tmp_val % 100 / 10) | (tmp_val % 10) << 4;
  239   3              tmp_val /= 100;
@@ -298,8 +298,8 @@ line level    source
  277   2          // 发送 时速（单位：英里每小时 mile/h）
  278   2          case SEND_SPEED_WITH_MILE:
  279   2          {
- 280   3              tmp_val = fun_info.speed * 621 / 1000; // （单位：英里每小时 mile/h） 1km/h == 0.621427m
-             -ile/h
+ 280   3              tmp_val = (u32)fun_info.speed * 621 / 1000; // （单位：英里每小时 mile/h） 1km/h == 0.62
+             -1427mile/h
  281   3              if (tmp_val > 255)
  282   3              {
  283   4                  tmp_val = 255; // 限制发送的时速
@@ -318,7 +318,7 @@ line level    source
  296   1      
  297   1          for (i = 0; i < send_data_packet_len; i++)
  298   1          {
-C51 COMPILER V9.60.7.0   SEND_DATA                                                         02/28/2026 14:47:01 PAGE 6   
+C51 COMPILER V9.60.7.0   SEND_DATA                                                         03/13/2026 08:55:20 PAGE 6   
 
  299   2              if (i == send_data_packet_len - 1)
  300   2              {
@@ -335,7 +335,7 @@ line level    source
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    888    ----
+   CODE SIZE        =    889    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =     20       7
    PDATA SIZE       =   ----    ----

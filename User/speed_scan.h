@@ -27,11 +27,11 @@
     时速扫描的超时时间，单位：ms
     如果超过这个时间还没有检测到脉冲个数，则认为时速为0
 
-    600ms，为了滤掉1Hz的pwm，因为客户的样机对1Hz的pwm也认为是0km/h
+    600ms，为了滤掉1Hz的pwm，因为客户的样机对1Hz的pwm也认为是 0km/h
 */ 
-#define SPEED_SCAN_OVER_TIME (600)
+#define SPEED_SCAN_OVER_TIME (600) // == 0 , 每600ms发送一次
 // 时速的更新时间，单位：ms
-#define SPEED_SCAN_UPDATE_TIME (500)
+#define SPEED_SCAN_UPDATE_TIME (500) // >0 每500ms发送一次
 // #define SPEED_SCAN_UPDATE_TIME (300) // 时间太短，时速会经常跳动（提供1Hz信号，会在0km/h、3km/h这两个值来回切换）
 
 // 检测时速所需的配置

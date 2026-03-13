@@ -277,7 +277,7 @@ void send_data_packet(SEND_DATA_CMD_T cmd)
     // 发送 时速（单位：英里每小时 mile/h）
     case SEND_SPEED_WITH_MILE:
     {
-        tmp_val = fun_info.speed * 621 / 1000; // （单位：英里每小时 mile/h） 1km/h == 0.621427mile/h
+        tmp_val = (u32)fun_info.speed * 621 / 1000; // （单位：英里每小时 mile/h） 1km/h == 0.621427mile/h
         if (tmp_val > 255)
         {
             tmp_val = 255; // 限制发送的时速

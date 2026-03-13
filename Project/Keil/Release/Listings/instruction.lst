@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   INSTRUCTION                                                       02/28/2026 14:49:01 PAGE 1   
+C51 COMPILER V9.60.7.0   INSTRUCTION                                                       03/12/2026 10:00:11 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE INSTRUCTION
@@ -62,7 +62,7 @@ line level    source
   48          volatile u16 update_time_cooling_cnt; // 更新时间的冷却计数
   49          // volatile u16 update_date_cooling_cnt = 0; // 更新日期的冷却计数
   50          
-C51 COMPILER V9.60.7.0   INSTRUCTION                                                       02/28/2026 14:49:01 PAGE 2   
+C51 COMPILER V9.60.7.0   INSTRUCTION                                                       03/12/2026 10:00:11 PAGE 2   
 
   51          // // 存放接收到的设置水温报警的指令中，对应的操作，默认为无操作
   52          // volatile u8 operation_set_temp_of_water_warning = OPERATION_SET_TEMP_OF_WATER_WARNING_NONE;
@@ -126,7 +126,7 @@ line level    source
                                       }
                                   }
               
-C51 COMPILER V9.60.7.0   INSTRUCTION                                                       02/28/2026 14:49:01 PAGE 3   
+C51 COMPILER V9.60.7.0   INSTRUCTION                                                       03/12/2026 10:00:11 PAGE 3   
 
               #endif // 打印串口缓冲区的数据
               #endif
@@ -190,7 +190,7 @@ line level    source
  169   3                  send_data_packet(SEND_ENGINE_SPEED);    // 发送发动机转速
  170   3                  send_data_packet(SEND_SPEED);           // 发送当前采集到的车速（时速）
  171   3                  send_data_packet(SEND_SPEED_WITH_MILE); // 发送时速（单位：英里每小时 mile/h） 1
-C51 COMPILER V9.60.7.0   INSTRUCTION                                                       02/28/2026 14:49:01 PAGE 4   
+C51 COMPILER V9.60.7.0   INSTRUCTION                                                       03/12/2026 10:00:11 PAGE 4   
 
              -km/h == 0.621427mile/h
  172   3                  send_data_packet(SEND_FUEL);            // 发送当前油量(单位：百分比)
@@ -254,7 +254,7 @@ line level    source
               #endif
  228   2      
  229   2              send_data_packet(SEND_BATTERY); // 发送电池电量
-C51 COMPILER V9.60.7.0   INSTRUCTION                                                       02/28/2026 14:49:01 PAGE 5   
+C51 COMPILER V9.60.7.0   INSTRUCTION                                                       03/12/2026 10:00:11 PAGE 5   
 
  230   2          }
  231   1      
@@ -318,7 +318,7 @@ line level    source
  289   2              // send_data_packet(SEND_TOTAL_MILEAGE_WITH_MILE); // 1km == 0.621427mile
  290   2          }
  291   1      
-C51 COMPILER V9.60.7.0   INSTRUCTION                                                       02/28/2026 14:49:01 PAGE 6   
+C51 COMPILER V9.60.7.0   INSTRUCTION                                                       03/12/2026 10:00:11 PAGE 6   
 
  292   1          if (flag_get_sub_total_mileage) // 如果要获取小计里程 / 得到了小计里程新的数据
  293   1          {
@@ -382,7 +382,7 @@ line level    source
  349   1          if (flag_get_voltage_of_battery)
  350   1          {
  351   2              // 如果要获取电池电压
-C51 COMPILER V9.60.7.0   INSTRUCTION                                                       02/28/2026 14:49:01 PAGE 7   
+C51 COMPILER V9.60.7.0   INSTRUCTION                                                       03/12/2026 10:00:11 PAGE 7   
 
  352   2              flag_get_voltage_of_battery = 0;
  353   2      #if USE_MY_DEBUG
@@ -446,7 +446,7 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
-C51 COMPILER V9.60.7.0   INSTRUCTION                                                       02/28/2026 14:49:01 PAGE 8   
+C51 COMPILER V9.60.7.0   INSTRUCTION                                                       03/12/2026 10:00:11 PAGE 8   
 
    BIT SIZE         =     19    ----
 END OF MODULE INFORMATION.

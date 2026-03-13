@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   MILEAGE                                                           02/10/2026 16:28:58 PAGE 1   
+C51 COMPILER V9.60.7.0   MILEAGE                                                           03/12/2026 10:00:11 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MILEAGE
@@ -62,7 +62,7 @@ line level    source
   46   2              {
   47   3                  fun_info.save_info.total_mileage++; // +1m
   48   3              }
-C51 COMPILER V9.60.7.0   MILEAGE                                                           02/10/2026 16:28:58 PAGE 2   
+C51 COMPILER V9.60.7.0   MILEAGE                                                           03/12/2026 10:00:11 PAGE 2   
 
   49   2      
   50   2              if (fun_info.save_info.subtotal_mileage < (u32)(9999999)) // 9999.9KM， 9999 999 m
@@ -126,7 +126,7 @@ line level    source
  107   2              // 每隔一段时间，发送大小里程，
  108   2              // 因为最后大计里程在999999km,小计里程在999.9km之后，就不更新了，
  109   2              // 要在刷新一次，才会发送1000000km和1000.0km的大小里程
-C51 COMPILER V9.60.7.0   MILEAGE                                                           02/10/2026 16:28:58 PAGE 3   
+C51 COMPILER V9.60.7.0   MILEAGE                                                           03/12/2026 10:00:11 PAGE 3   
 
  110   2              mileage_update_time_cnt = 0;
  111   2      

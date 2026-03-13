@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   PIN_LEVEL_SCAN                                                    02/10/2026 16:28:58 PAGE 1   
+C51 COMPILER V9.60.7.0   PIN_LEVEL_SCAN                                                    03/12/2026 10:00:11 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE PIN_LEVEL_SCAN
@@ -62,7 +62,7 @@ line level    source
   51   2      
   52   2      #if 0  // 刹车检测
                      // if (PIN_DETECT_BRAKE)
-C51 COMPILER V9.60.7.0   PIN_LEVEL_SCAN                                                    02/10/2026 16:28:58 PAGE 2   
+C51 COMPILER V9.60.7.0   PIN_LEVEL_SCAN                                                    03/12/2026 10:00:11 PAGE 2   
 
                      // {
                      //     // 如果没有刹车
@@ -126,7 +126,7 @@ line level    source
  112   3                  // 如果大灯开启
  113   3                  fun_info.high_beam = ON;
  114   3              }
-C51 COMPILER V9.60.7.0   PIN_LEVEL_SCAN                                                    02/10/2026 16:28:58 PAGE 3   
+C51 COMPILER V9.60.7.0   PIN_LEVEL_SCAN                                                    03/12/2026 10:00:11 PAGE 3   
 
  115   2      
  116   2              flag_get_high_beam = 1;
@@ -190,7 +190,7 @@ line level    source
  173   2          }
  174   1          else
  175   1          {
-C51 COMPILER V9.60.7.0   PIN_LEVEL_SCAN                                                    02/10/2026 16:28:58 PAGE 4   
+C51 COMPILER V9.60.7.0   PIN_LEVEL_SCAN                                                    03/12/2026 10:00:11 PAGE 4   
 
  176   2              // 如果未检测到水温报警
  177   2              fun_info.flag_is_in_water_temp_warning = 0;

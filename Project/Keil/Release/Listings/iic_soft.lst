@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   IIC_SOFT                                                          02/10/2026 16:28:57 PAGE 1   
+C51 COMPILER V9.60.7.0   IIC_SOFT                                                          03/12/2026 10:00:10 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE IIC_SOFT
@@ -62,7 +62,7 @@ line level    source
                       {
                           eeprom_menu_next = eeprom_menu_prev;
                           eeprom_24cxx_write(1, (u8 *)&eeprom_menu_next, sizeof(eeprom_menu_t));
-C51 COMPILER V9.60.7.0   IIC_SOFT                                                          02/10/2026 16:28:57 PAGE 2   
+C51 COMPILER V9.60.7.0   IIC_SOFT                                                          03/12/2026 10:00:10 PAGE 2   
 
                       }
                       else if (eeprom_menu_next.is_data_valid == EEPROM_DATA_VALID_VAL)
@@ -126,7 +126,7 @@ line level    source
                   // for (i = 2; i < 128; i++)
                   // for (i = 2; i < EEPROM_PAGE_NUMS; i++)
                   for (i = 2; i < 10; i++)
-C51 COMPILER V9.60.7.0   IIC_SOFT                                                          02/10/2026 16:28:57 PAGE 3   
+C51 COMPILER V9.60.7.0   IIC_SOFT                                                          03/12/2026 10:00:10 PAGE 3   
 
                   {
                       eeprom_24cxx_read(i, (u8 *)&eeprom_saveinfo, sizeof(eeprom_saveinfo_t));
@@ -190,7 +190,7 @@ line level    source
                   }
                   else
                   {
-C51 COMPILER V9.60.7.0   IIC_SOFT                                                          02/10/2026 16:28:57 PAGE 4   
+C51 COMPILER V9.60.7.0   IIC_SOFT                                                          03/12/2026 10:00:10 PAGE 4   
 
                       // 如果目录中的数据不一致，判断哪个地址更大，哪个就作为待写入的地�
              -�的id
@@ -254,7 +254,7 @@ line level    source
                       eeprom_saveinfo_prev.erase_cnt = 0;
                       eeprom_saveinfo_prev.total_mileage = 0;
                       eeprom_saveinfo_prev.subtotal_mileage = 0;
-C51 COMPILER V9.60.7.0   IIC_SOFT                                                          02/10/2026 16:28:57 PAGE 5   
+C51 COMPILER V9.60.7.0   IIC_SOFT                                                          03/12/2026 10:00:10 PAGE 5   
 
                       eeprom_saveinfo_prev.subtotal_mileage_2 = 0;
                       eeprom_saveinfo_prev.is_data_valid = EEPROM_DATA_VALID_VAL;
@@ -318,7 +318,7 @@ line level    source
               
                       // 擦写次数清零
                       eeprom_saveinfo_prev.erase_cnt = 0;
-C51 COMPILER V9.60.7.0   IIC_SOFT                                                          02/10/2026 16:28:57 PAGE 6   
+C51 COMPILER V9.60.7.0   IIC_SOFT                                                          03/12/2026 10:00:10 PAGE 6   
 
                       eeprom_saveinfo_next.erase_cnt = 0;
                   }
@@ -382,7 +382,7 @@ line level    source
                   SDA_OUT(); // SDA线输出
               
                   // 配置时钟线和数据线均为低电平
-C51 COMPILER V9.60.7.0   IIC_SOFT                                                          02/10/2026 16:28:57 PAGE 7   
+C51 COMPILER V9.60.7.0   IIC_SOFT                                                          03/12/2026 10:00:10 PAGE 7   
 
                   IIC_SCL = 0;
                   IIC_SDA = 0; // STOP:when CLK is high DATA change form low to high
@@ -446,7 +446,7 @@ line level    source
                   IIC_DELAY();
                   IIC_SCL = 1;
                   IIC_DELAY();
-C51 COMPILER V9.60.7.0   IIC_SOFT                                                          02/10/2026 16:28:57 PAGE 8   
+C51 COMPILER V9.60.7.0   IIC_SOFT                                                          03/12/2026 10:00:10 PAGE 8   
 
                   IIC_SCL = 0;
               }
@@ -510,7 +510,7 @@ line level    source
               {
                   // unsigned char i, receive = 0;
                   u8 i;
-C51 COMPILER V9.60.7.0   IIC_SOFT                                                          02/10/2026 16:28:57 PAGE 9   
+C51 COMPILER V9.60.7.0   IIC_SOFT                                                          03/12/2026 10:00:10 PAGE 9   
 
                   u8 receive = 0;
               
@@ -574,7 +574,7 @@ line level    source
                   }
               
                   // iic_send_byte(addr % 256); // 发送低地址
-C51 COMPILER V9.60.7.0   IIC_SOFT                                                          02/10/2026 16:28:57 PAGE 10  
+C51 COMPILER V9.60.7.0   IIC_SOFT                                                          03/12/2026 10:00:10 PAGE 10  
 
                   iic_send_byte(addr & 0xFF); // 发送低地址
               
@@ -638,7 +638,7 @@ line level    source
                   if (iic_wait_ack())
                   {
                       return 1; // 表示操作失败，没有收到应答
-C51 COMPILER V9.60.7.0   IIC_SOFT                                                          02/10/2026 16:28:57 PAGE 11  
+C51 COMPILER V9.60.7.0   IIC_SOFT                                                          03/12/2026 10:00:10 PAGE 11  
 
                   }
               
@@ -702,7 +702,7 @@ line level    source
                   P3_MD0 |= GPIO_P31_MODE_SEL(0x01);
                   FOUT_S31 = GPIO_FOUT_AF_FUNC; // 选择AF功能输出
               
-C51 COMPILER V9.60.7.0   IIC_SOFT                                                          02/10/2026 16:28:57 PAGE 12  
+C51 COMPILER V9.60.7.0   IIC_SOFT                                                          03/12/2026 10:00:10 PAGE 12  
 
                   P2_MD1 &= ~GPIO_P26_MODE_SEL(0x03);
                   P2_MD1 |= GPIO_P26_MODE_SEL(0x1);
